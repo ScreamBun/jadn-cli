@@ -1,8 +1,21 @@
 import cmd
+import sys
+
+from src.validation.validation import SchemaValidation
 
 class JadnCLI(cmd.Cmd):
-    intro = 'Welcome to the JSON Abstract Data Notation (JADN) CLI tool. Type help or ? to list commands.\n'
-    prompt = '(jadn) '
+    
+    
+    def __init__(self):
+        super().__init__()  # Call the parent class's __init__
+
+        if len(sys.argv) > 1:
+            if sys.argv[1] == 'v_schema' and sys.argv[2]:             
+                self.do_v_schema(sys.argv[2])
+        else: 
+            self.intro = 'Welcome to the JSON Abstract Data Notation (JADN) CLI tool. Type help or ? to list commands.\n'
+            
+        self.prompt = '(jadn) ' 
 
     def do_exit(self, arg):
         'Exit the JADN CLI.'
@@ -12,17 +25,18 @@ class JadnCLI(cmd.Cmd):
     def do_v_schema(self, arg): 
         'Validate a JADN schema coming soon. Usage: validate_schema <schema_file>'
         if not arg:
-            print('Please provide a schema filename to validate.')
+            print('Please provide a JADN schema filename to validate.  \nJADN schemas should be dropped in the schema folder and \nshoud have a .jadn file extension.')
             return
-        # try:
-        #     with open(arg, 'r') as f:
-        #         schema = f.read()
-        #         # Placeholder for actual validation logic
-        #         print(f'Schema {arg} is valid.')
-        # except FileNotFoundError:
-        #     print(f'File {arg} not found.')
-        # except Exception as e:
-        #     print(f'An error occurred while validating the schema: {e}')
+        
+        try:
+            schema_validation = SchemaValidation()
+            is_valid = schema_validation.validate(arg)
+            
+            if is_valid:
+                print(f'Schema {arg} is valid.')
+            
+        except Exception as e:
+            print(f'An error occurred while validating the schema: {e}')
             
     def do_v_data(self, arg):
         'Validate data against a JADN schema coming soon. Usage: validate_data <schema_file> <data_file>'
