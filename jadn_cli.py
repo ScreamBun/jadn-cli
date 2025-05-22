@@ -9,40 +9,85 @@ class JadnCLI(cmd.Cmd):
         print('See you next time. ')
         return True
         
-    def do_add(self, arg):
-        'Add two numbers. Usage: add <num1> <num2>'
-        try:
-            num1, num2 = map(int, arg.split())
-            print(f'The sum is: {num1 + num2}')
-        except ValueError:
-            print('Invalid input. Please provide two numbers.')
+    def do_v_schema(self, arg): 
+        'Validate a JADN schema coming soon. Usage: validate_schema <schema_file>'
+        if not arg:
+            print('Please provide a schema filename to validate.')
+            return
+        # try:
+        #     with open(arg, 'r') as f:
+        #         schema = f.read()
+        #         # Placeholder for actual validation logic
+        #         print(f'Schema {arg} is valid.')
+        # except FileNotFoundError:
+        #     print(f'File {arg} not found.')
+        # except Exception as e:
+        #     print(f'An error occurred while validating the schema: {e}')
             
-    def do_subtract(self, arg):
-        'Subtract two numbers. Usage: subtract <num1> <num2>'
-        try:
-            num1, num2 = map(int, arg.split())
-            print(f'The difference is: {num1 - num2}')
-        except ValueError:
-            print('Invalid input. Please provide two numbers.')
+    def do_v_data(self, arg):
+        'Validate data against a JADN schema coming soon. Usage: validate_data <schema_file> <data_file>'
+        if not arg:
+            print('Please provide a schema filename and a data filename to validate.')
+            return
+        # try:
+        #     schema_file, data_file = arg.split()
+        #     with open(schema_file, 'r') as f:
+        #         schema = f.read()
+        #     with open(data_file, 'r') as f:
+        #         data = f.read()
+        #         # Placeholder for actual validation logic
+        #         print(f'Data in {data_file} is valid against schema {schema_file}.')
+        # except FileNotFoundError:
+        #     print(f'File {arg} not found.')
+        # except Exception as e:
+        #     print(f'An error occurred while validating the data: {e}')
             
-    def do_multiply(self, arg):
-        'Multiply two numbers. Usage: multiply <num1> <num2>'
-        try:
-            num1, num2 = map(int, arg.split())
-            print(f'The product is: {num1 * num2}')
-        except ValueError:
-            print('Invalid input. Please provide two numbers.')
+    def do_c_schema(self, arg):
+        'Convert a JADN schema to another format coming soon. Usage: convert_schema <schema_file> <convert_to>'
+        if not arg:
+            print('Please provide a schema filename and an output format.')
+            return
+        # try:
+        #     schema_file, output_format = arg.split()
+        #     with open(schema_file, 'r') as f:
+        #         schema = f.read()
+        #         # Placeholder for actual conversion logic
+        #         print(f'Schema {schema_file} converted to {output_format}.')
+        # except FileNotFoundError:
+        #     print(f'File {arg} not found.')
+        # except Exception as e:
+        #     print(f'An error occurred while converting the schema: {e}')
+
+    def do_c_data(self, arg):
+        'Convert data to another format coming soon. Usage: data_conversion <data_file> <output_format>'
+        if not arg:
+            print('Please provide a data filename and an output format.')
+            return
+    #     try:
+    #         data_file, output_format = arg.split()
+    #         with open(data_file, 'r') as f:
+    #             data = f.read()
+    #             # Placeholder for actual conversion logic
+    #             print(f'Data in {data_file} converted to {output_format}.')
+    #     except FileNotFoundError:
+    #         print(f'File {arg} not found.')
+    #     except Exception as e:
+    #         print(f'An error occurred while converting the data: {e}')
+        
+    # def do_add(self, arg):
+    #     'Add two numbers. Usage: add <num1> <num2>'
+    #     try:
+    #         num1, num2 = map(int, arg.split())
+    #         print(f'The sum is: {num1 + num2}')
+    #     except ValueError:
+    #         print('Invalid input. Please provide two numbers.')
+    
+    def do_vis_schema(self, arg):
+        'Visualize the schema ins another format coming soon. Usage: vis_schema <schema> <output_format>'
+        if not arg:
+            print('Please provide a data filename and an output format.')
+            return    
             
-    def do_divide(self, arg):
-        'Divide two numbers. Usage: divide <num1> <num2>'
-        try:
-            num1, num2 = map(int, arg.split())
-            if num2 == 0:
-                print('Error: Division by zero.')
-            else:
-                print(f'The quotient is: {num1 / num2}')
-        except ValueError:
-            print('Invalid input. Please provide two numbers.')
             
     def do_clear(self, arg):
         'Clear the screen.'
@@ -51,12 +96,14 @@ class JadnCLI(cmd.Cmd):
     def do_help(self, arg):
         'List available commands.'
         print('Available commands:')
-        print('  add <num1> <num2>  - Add two numbers.')
-        print('  subtract <num1> <num2> - Subtract two numbers.')
-        print('  multiply <num1> <num2> - Multiply two numbers.')
-        print('  divide <num1> <num2>   - Divide two numbers.')
-        print('  clear              - Clear the screen.')
-        print('  exit               - Exit the JADN CLI.')
+        print('  v_schema <schema> - Validate a JADN Schema')
+        print('  v_data <data> <schema> - Validate Data against a JADN Schema')
+        print('  c_schema <schema> <convert_to> - Convert JADN Schema to another format, such as <json> or <xsd>')
+        print('  c_data <data> <schema> <convert_to> - Convert a data to another format, such as <json>, <cbor> or <xml>')
+        print('  vis_schema <schema> <vis_to> - Visualize the JADN Schema in another format such as <plantuml>, <graphviz>, <md> or <jidl>.')
+        print('  clear - Clear the screen.')
+        print('  version - Print the JADN CLI Version.')
+        print('  exit - Exit the JADN CLI.')
         
     def do_version(self, arg):
         'Show the version of the JADN CLI.'
@@ -65,11 +112,11 @@ class JadnCLI(cmd.Cmd):
     def do_list(self, arg):
         'List all available commands.'
         print('Available commands:')
-        print('  hello')
-        print('  add')
-        print('  subtract')
-        print('  multiply')
-        print('  divide')
+        print('  v_schema')
+        print('  v_data')
+        print('  c_schema')
+        print('  c_data')
+        print('  vis_schema')
         print('  clear')
         print('  exit')
         print('  help')
