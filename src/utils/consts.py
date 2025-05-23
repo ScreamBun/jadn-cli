@@ -1,4 +1,5 @@
 SCHEMAS_DIR_PATH = "./schemas"
 DATA_DIR_PATH = "./data"
+OUTPUT_DIR_PATH = "./output"
 JADN_SCHEMA_FILE_EXT = ".jadn"
 JSON_FILE_EXT = ".json"

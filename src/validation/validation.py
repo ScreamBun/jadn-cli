@@ -24,9 +24,6 @@ class SchemaValidation():
             except Exception as e:
                 return False, f"Schema Invalid - {e}"
         
-        try: 
-            jadn.check(self.schema)
-        except Exception as ex:
-            print(f"Schema validation error: {ex}")
+        jadn.check(self.schema)
         
         return True
