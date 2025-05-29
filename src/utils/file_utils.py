@@ -1,5 +1,7 @@
 import glob
 import os
+
+from src.utils.consts import CBOR_FILE_EXT, JADN_SCHEMA_FILE_EXT, JSON_FILE_EXT, UNKNOWN_EXT, XML_FILE_EXT, XSD_FILE_EXT
     
 def get_file(dir_path: str, filename: str) -> dict:
     file_data = {}
@@ -9,6 +11,24 @@ def get_file(dir_path: str, filename: str) -> dict:
             file_data[filename] = file.read()
             
     return file_data
+
+def determine_file_type(filename: str) -> str:
+    """
+    Determine the file type based on the file extension.
+    Returns 'jadn' for JADN schema files, 'json' for JSON files, or 'unknown' for others.
+    """
+    if filename.endswith('.cbor'):
+        return CBOR_FILE_EXT    
+    elif filename.endswith('.jadn'):
+        return JADN_SCHEMA_FILE_EXT
+    elif filename.endswith('.json'):
+        return JSON_FILE_EXT
+    elif filename.endswith('.xml'):
+        return XML_FILE_EXT
+    elif filename.endswith('.xsd'):
+        return XSD_FILE_EXT        
+    else:
+        return UNKNOWN_EXT
 
 def file_exists(dirname, filename):
     """

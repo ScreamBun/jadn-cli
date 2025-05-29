@@ -1,7 +1,8 @@
 import jadnvalidation
 
-from src.utils.consts import DATA_DIR_PATH
-from src.utils.file_utils import get_file
+from src.utils.consts import DATA_DIR_PATH, VALID_DATA_FORMATS
+from src.utils.file_utils import determine_file_type, get_file
+from src.utils.gen_utils import get_schema_roots
 from src.validation.cli_schema_validation import CliSchemaValidation
 
 
@@ -26,16 +27,22 @@ class CliDataValidation():
         if not file_data:
             raise ValueError(f"data for {self.data_filename} not found.  Double check the data folder and filename.")
         
+        roots = get_schema_roots(schema_data)
+        if not roots:
+            raise ValueError(f"Schema {self.schema_filename} does not have a valid root.  Cannot validate data without a valid root.")
+        
+        file_format = determine_file_type(self.data_filename)
+        if file_format not in VALID_DATA_FORMATS:
+            raise ValueError(f"Unsupported data format: {format}. Supported formats are: {VALID_DATA_FORMATS}")
+        
         data = file_data[self.data_filename]
         if(isinstance(data, str)):
-            try :
-                # TODO: get format from user or from file extension?
-                # TODO: get root from user or have data validation figure it out from schema?
-                root = "Library"
-                j_validation = jadnvalidation.DataValidation(schema_data, root, data, "json")
-                j_validation.validate()
-            except Exception as e:
-                raise ValueError(f"Data Invalid - {e}")
+            for root_item in roots:
+                try :
+                    j_validation = jadnvalidation.DataValidation(schema_data, root_item, data, file_format)
+                    j_validation.validate()
+                except Exception as e:
+                    raise ValueError(f"Data Invalid - {e}")
 
         else:
             raise ValueError(f"Data from {self.data_filename} is not a valid.")

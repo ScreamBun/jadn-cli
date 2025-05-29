@@ -1,5 +1,12 @@
 SCHEMAS_DIR_PATH = "./schemas"
 DATA_DIR_PATH = "./data"
 OUTPUT_DIR_PATH = "./output"
-JADN_SCHEMA_FILE_EXT = ".jadn"
-JSON_FILE_EXT = ".json"
+
+CBOR_FILE_EXT = "cbor"
+JADN_SCHEMA_FILE_EXT = "jadn"
+JSON_FILE_EXT = "json"
+XML_FILE_EXT = "xml"
+XSD_FILE_EXT = "xsd"
+UNKNOWN_EXT = "unknown"
+
+VALID_DATA_FORMATS = [CBOR_FILE_EXT, JSON_FILE_EXT, XML_FILE_EXT]
