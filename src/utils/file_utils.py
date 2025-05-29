@@ -20,3 +20,46 @@ def file_exists(dirname, filename):
         return False
     files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
     return filename in files
+
+def list_files(dir):
+    """
+    List all files in the specified directory.
+    """
+    dir = os.path.join(os.getcwd(), dir)
+    if not os.path.exists(dir):
+        print(f"The '{dir}' directory does not exist.")
+        return
+    
+    files = glob.glob(os.path.join(dir, "*"))
+    if files:
+        print(f"Files in '{dir}' directory:")
+        for f in files:
+            print("  -", os.path.basename(f))
+    else:
+        print(f"No files found in the '{dir}' directory.")
+        
+def pick_a_file(dir, prompt="Enter the filename (or type 'exit' to cancel): ") -> str:
+    """
+    Prompt the user to pick a file from the specified directory.
+    Returns the selected filename or None if cancelled.
+    """
+    dir = os.path.join(os.getcwd(), dir)
+    if not os.path.exists(dir):
+        print(f"The '{dir}' directory does not exist.")
+        return None
+    
+    files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
+    
+    if not files:
+        print(f"No files found in the '{dir}' directory.")
+        return None
+    
+    while True:
+        filename = input(prompt).strip()
+        if filename.lower() == 'exit':
+            print("Operation cancelled.")
+            return None
+        if filename in files:
+            return filename
+        else:
+            print("Invalid filename. Please try again or type 'exit' to cancel.")        

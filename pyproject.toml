@@ -1,0 +1,27 @@
+[project]
+name = "jadn-cli"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ScreamingBunnyDev",email = "screambunn@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "jadn (>=0.7.4,<0.8.0)",
+    "numpy (>=2.2.6,<3.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "texttable (>=1.7.0,<2.0.0)",
+    "pytest (>=8.3.5,<9.0.0)",
+    "jadnschema @ file:///home/matt/workspace/jadn-cli/whls/jadnschema-0.3.0-py2.py3-none-any.whl",
+    "jadnvalidation @ file:///home/matt/workspace/jadn-cli/whls/jadnvalidation-1.1.0-py2.py3-none-any.whl",
+
+]
+
+[tool.poetry]
+packages = [{include = "jadn_cli", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

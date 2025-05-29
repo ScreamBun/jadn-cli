@@ -1,15 +1,14 @@
 import cmd
-import glob
 import logging
 import os
 import sys
 import pandas as pd
 import texttable
 
-from src.utils.file_utils import file_exists
+from src.utils.file_utils import list_files, file_exists, pick_a_file
 from src.utils.time_utils import get_err_report_filename, get_now
-from src.validation.validation import SchemaValidation
-from src.utils.consts import OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH
+from src.validation.cli_data_validation import CliDataValidation, CliSchemaValidation
+from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH
 
 class JadnCLI(cmd.Cmd):
     
@@ -19,9 +18,13 @@ class JadnCLI(cmd.Cmd):
     def __init__(self):
         super().__init__()
 
-        if len(sys.argv) > 1:
-            if sys.argv[1] == 'v_schema' and sys.argv[2]:             
+        if len(sys.argv) == 3:
+            if sys.argv[1] == 'v_schema':             
                 self.do_v_schema(sys.argv[2])
+        if len(sys.argv) == 4:
+            if sys.argv[1] == 'v_data':
+                args = [sys.argv[2], sys.argv[3]]
+                self.do_v_data(args)
         else: 
             self.intro = '''Welcome to the JSON Abstract Data Notation (JADN) CLI tool. \nView the list of commands below to get started.'''
             
@@ -38,66 +41,87 @@ class JadnCLI(cmd.Cmd):
     def do_exit(self, arg):
         'Exit the JADN CLI.'
         print('See you next time. ')
-        return True
-
-    def do_list_schemas(self, arg):
-        """List all files in the schemas directory."""
-        schemas_dir = os.path.join(os.getcwd(), "schemas")
-        if not os.path.exists(schemas_dir):
-            print("The 'schemas' directory does not exist.")
-            return
+        return True      
         
-        files = glob.glob(os.path.join(schemas_dir, "*"))
-        if files:
-            print("Files in 'schemas' directory:")
-            for f in files:
-                print("  -", os.path.basename(f))
-                
-            valid_filenames = [os.path.basename(f) for f in files]
-            while True:
-                filename = input("Enter the filename to validate (or type 'exit' to cancel): ").strip()
-                if filename.lower() == 'exit':
-                    print("Operation cancelled.")
-                    return
-                if filename in valid_filenames:
-                    self.do_v_schema(filename)
-                    break
-                else:
-                    print("Invalid filename. Please try again or type 'exit' to cancel.")               
-                
-        else:
-            print("No files found in the 'schemas' directory.")        
-        
-    def do_v_schema(self, arg): 
+    def do_v_schema(self, arg = None): 
         'Validate a JADN Schema. \nUpload your schema to the schemas dir. \nCommand: v_schema <schema_file_name>'
         
+        j_schema = None
+        
         if not arg:
-            self.do_list_schemas('')           
+            list_files(SCHEMAS_DIR_PATH)
+            j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter the schema filename to validate (or type 'exit' to cancel): ")
+                    
+        elif isinstance(arg, str):        
+            does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
+            
+            if not does_exist:
+                print(f"Schema {arg} not found.")
+                self.do_v_schema()
+                return
+
+            j_schema = arg
+
+        elif isinstance(arg, list) and len(arg) >= 1: 
+            does_exist = file_exists(SCHEMAS_DIR_PATH, arg[0])
+            
+            if not does_exist:
+                print(f"Schema {arg} not found.")
+                self.do_v_schema()
+                return
+
+            j_schema = arg[0]
+            
+        else:
+            print("Invalid argument. Please provide a schema filename or use the list command.")
             return
         
-        does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
-        if not does_exist:
-            print(f"Schema {arg} not found.")
-            self.do_list_schemas('')           
-            return        
-        
         try:
-            schema_validation = SchemaValidation()
-            is_valid = schema_validation.validate(arg)
+            schema_validation = CliSchemaValidation(j_schema)
+            is_valid = schema_validation.validate()
             
             if is_valid:
-                print(f'Schema {arg} is valid.')
+                print(f'Schema {j_schema} is valid.')
+            else:
+                print(f'Schema {j_schema} is invalid.')
             
         except Exception as e:
             print(f'An error occurred while validating the schema: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
-    def do_v_data(self, arg):
-        'Validate data against a JADN schema coming soon. \nUsage: validate_data <schema_file> <data_file>'
-        if not arg:
-            print('Please provide a schema filename and a data filename to validate.')
-            return
+    def do_v_data(self, args):
+        'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: validate_data <schema_file> <data_file>'
+        
+        if isinstance(args, str):
+            args = args.strip().split()
+        
+        # self.do_v_schema(args)
+
+        schema_filename = args[0] if len(args) > 0 else None
+        data_filename = args[1] if len(args) > 1 else None
+        
+        if not schema_filename:
+            list_files(SCHEMAS_DIR_PATH)
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
+        
+        if not data_filename:
+            list_files(DATA_DIR_PATH)
+            data_filename = pick_a_file(DATA_DIR_PATH, "Enter a data filename (or type 'exit' to cancel): ")             
+            
+        try:
+            data_validation = CliDataValidation(schema_filename, data_filename)
+            is_valid = data_validation.validate()
+            
+            if is_valid:
+                print(f'Data {data_filename} is valid.')
+            else:
+                print(f'Data {data_filename} is invalid.')
+            
+        except Exception as e:
+            print(f'An error occurred while validating the data: {e}')
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
             
     def do_c_schema(self, arg):
@@ -127,8 +151,7 @@ class JadnCLI(cmd.Cmd):
             filepath = os.path.join(OUTPUT_DIR_PATH, filename)
             df.to_csv(filepath, index=False, mode='a', header=False)
             print(f"Error report generated: {filepath}")
-        else:
-            print("No errors to report.")   
+        return
             
     def do_out_err_report(self, arg):
         'Read the error report.'

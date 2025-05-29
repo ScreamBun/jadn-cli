@@ -1,3 +1,5 @@
+import cmd
+import sys
 from jadn_cli import JadnCLI
 
 
@@ -10,10 +12,24 @@ def test_do_v_schema():
     
     assert cli.error_list == [] 
     
-def test_do_help():
+def test_do_v_data():
+    arg = "music-database.jadn music_library.json"
+    
+    cli = JadnCLI()
+    cli.do_v_data(arg)
+    cli.do_gen_err_report('')
+    
+    assert cli.error_list == []     
+    
+def test_do_help(): 
     arg = ""
+    
+    version_info = sys.version_info
+    version_string = sys.version
+    a = sys.prefix
+    b = sys.base_prefix
     
     cli = JadnCLI()
     cli.do_help(arg)
     
-    assert cli.error_list == []     
+    assert cli.error_list == []
