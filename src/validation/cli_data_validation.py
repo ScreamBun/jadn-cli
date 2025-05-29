@@ -1,8 +1,7 @@
+import jadnvalidation
+
 from src.utils.consts import DATA_DIR_PATH
 from src.utils.file_utils import get_file
-import jadnvalidation
-# from jadnvalidation.jadnvalidation import DataValidation
-
 from src.validation.cli_schema_validation import CliSchemaValidation
 
 

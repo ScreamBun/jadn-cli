@@ -95,8 +95,6 @@ class JadnCLI(cmd.Cmd):
         
         if isinstance(args, str):
             args = args.strip().split()
-        
-        # self.do_v_schema(args)
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
