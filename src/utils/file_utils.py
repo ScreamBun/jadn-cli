@@ -124,4 +124,4 @@ def write_to_output(filename, data):
     filepath = os.path.join(output_dir, filename)
     with open(filepath, 'w') as f:
         f.write(data)
-    print(f"Data written to {filepath}/{filename}")                    
+    print(f" - Data written to {filepath}/{filename}")                    

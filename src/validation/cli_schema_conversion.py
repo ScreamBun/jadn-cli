@@ -1,6 +1,8 @@
 import json
 import jadn
-from src.utils.consts import JIDL_FILE_EXT, SCHEMAS_DIR_PATH
+
+from jadnxml.builder.xsd_builder import convert_xsd_from_dict
+from src.utils.consts import JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, SCHEMAS_DIR_PATH, XSD_FILE_EXT
 from src.utils.file_utils import get_file
 
 class CliSchemaConversion():
@@ -23,10 +25,21 @@ class CliSchemaConversion():
         try:
             schema_data_str = schema_file_data[self.schema_filename]
             schema_data = json.loads(schema_data_str) # Ensure it's a valid JSON string
-            if self.convert_to == JIDL_FILE_EXT:
+            
+            if self.convert_to == JSON_FILE_EXT:
+                converted_schema = jadn.translate.json_schema_dumps(schema_data)
+            
+            elif self.convert_to == JIDL_FILE_EXT:
                 jidl_style = jadn.convert.jidl_style()
-                converted_schema = jadn.convert.jidl_dumps(schema_data, jidl_style)  
-                # converted_schema = jadn.convert(schema_data, self.convert_to)             
+                converted_schema = jadn.convert.jidl_dumps(schema_data, jidl_style)
+                
+            elif self.convert_to == MARKDOWN_FILE_EXT:
+                converted_schema = jadn.convert.markdown_dumps(schema_data)
+                
+            elif self.convert_to == XSD_FILE_EXT:
+                result = convert_xsd_from_dict(schema_data)
+                if result and isinstance(result, tuple):
+                    converted_schema = result[0]
                 
         except Exception as e:
             raise ValueError(f"Schema Invalid - {e}")

@@ -42,8 +42,8 @@ class JadnCLI(cmd.Cmd):
     def do_exit(self, arg):
         'Exit the JADN CLI.'
         print('Thank you for using JADN. ')
-        print('JADN 1.0 OASIS Standard: https://www.oasis-open.org/standard/specification-for-json-abstract-data-notation-jadn-version-1-0-committee-specification-01/')
-        print('JADN 2,0 OASIS CN1: https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html')
+        print('  - JADN 1.0 OASIS Standard: https://www.oasis-open.org/standard/specification-for-json-abstract-data-notation-jadn-version-1-0-committee-specification-01/')
+        print('  - JADN 2.0 OASIS CN1: https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html')
         return True      
         
     def do_v_schema(self, arg = None): 
@@ -115,12 +115,12 @@ class JadnCLI(cmd.Cmd):
             is_valid = data_validation.validate()
             
             if is_valid:
-                print(f'Data {data_filename} is valid.')
+                print(f' - Data {data_filename} is valid.')
             else:
-                print(f'Data {data_filename} is invalid.')
+                print(f' - Data {data_filename} is invalid.')
             
         except Exception as e:
-            print(f'An error occurred while validating the data: {e}')
+            print(f' - An error occurred while validating the data: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
@@ -139,21 +139,21 @@ class JadnCLI(cmd.Cmd):
             schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
         
         if not schema_format:
-            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to:")
+            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to: ")
             
         try:
             schema_conversion = CliSchemaConversion(schema_filename, convert_to)
             schema_converted = schema_conversion.convert()
             
             if schema_converted:
-                print(f'Schema {schema_filename} has been converted to {convert_to}.')
+                print(f' - Schema {schema_filename} has been converted to {convert_to}.')
                 new_filename = update_file_extension(schema_filename, convert_to)
                 write_to_output(new_filename, schema_converted)
             else: 
-                print(f'Schema {schema_filename} could not be converted to {convert_to}.')
+                print(f' - Schema {schema_filename} could not be converted to {convert_to}.')
             
         except Exception as e:
-            print(f'An error occurred while converting {schema_filename} to {convert_to}: {e}')
+            print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 

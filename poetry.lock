@@ -101,6 +101,21 @@ files = [
 ]
 
 [[package]]
+name = "dict2xml"
+version = "1.7.6"
+description = "Small utility to convert a python dictionary into an XML string"
+optional = false
+python-versions = ">=3.5"
+groups = ["main"]
+files = [
+    {file = "dict2xml-1.7.6-py3-none-any.whl", hash = "sha256:841a0c1720e4bfa121e958b805f1062fccf5af2970e7a1f81d7fa056f49e5065"},
+    {file = "dict2xml-1.7.6.tar.gz", hash = "sha256:3e4811f4ef7fca86dede6acf382268ff9bc5735a4aa0e21b465f6eb0c4e81732"},
+]
+
+[package.extras]
+tests = ["noseofyeti[black] (==2.4.9)", "pytest (==8.3.2)"]
+
+[[package]]
 name = "edn-format"
 version = "0.7.5"
 description = "EDN format reader and writer in Python"
@@ -377,6 +392,26 @@ validators = "*"
 [package.source]
 type = "file"
 url = "whls/jadnvalidation-1.1.0-py2.py3-none-any.whl"
+
+[[package]]
+name = "jadnxml"
+version = "1.11.0"
+description = ""
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "jadnxml-1.11.0-py2.py3-none-any.whl", hash = "sha256:93429ae954c5105e7b13f4df611504718df03a7bb53fe13e8aaa7163f0787f04"},
+]
+
+[package.dependencies]
+dict2xml = "*"
+lxml = "*"
+xmltodict = "*"
+
+[package.source]
+type = "file"
+url = "whls/jadnxml-1.11.0-py2.py3-none-any.whl"
 
 [[package]]
 name = "jsonpointer"
@@ -1369,4 +1404,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "edaa8f8979d58ab62407dd1b01984e78e9754c96bf57d1052b974805f60b5c56"
+content-hash = "08c3a14ee376cf113ca2b5678caeda4a1bbf33d963cdc243c50673bfe0b75c11"
