@@ -5,10 +5,11 @@ import sys
 import pandas as pd
 import texttable
 
-from src.utils.file_utils import list_files, file_exists, pick_a_file
+from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.validation.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH
+from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS
+from src.validation.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
     
@@ -40,7 +41,9 @@ class JadnCLI(cmd.Cmd):
 
     def do_exit(self, arg):
         'Exit the JADN CLI.'
-        print('See you next time. ')
+        print('Thank you for using JADN. ')
+        print('JADN 1.0 OASIS Standard: https://www.oasis-open.org/standard/specification-for-json-abstract-data-notation-jadn-version-1-0-committee-specification-01/')
+        print('JADN 2,0 OASIS CN1: https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html')
         return True      
         
     def do_v_schema(self, arg = None): 
@@ -122,11 +125,37 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
             
-    def do_c_schema(self, arg):
-        'Convert a JADN schema to another format coming soon. \nUsage: convert_schema <schema_file> <convert_to>'
-        if not arg:
-            print('Please provide a schema filename and an output format.')
-            return
+    def do_c_schema(self, args):
+        'Convert a JADN schema to another format. \nUsage: convert_schema <schema_file> <convert_to>'
+
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        schema_filename = args[0] if len(args) > 0 else None
+        schema_format = args[1] if len(args) > 1 else None
+        
+        if not schema_filename:
+            list_files(SCHEMAS_DIR_PATH)
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
+        
+        if not schema_format:
+            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to:")
+            
+        try:
+            schema_conversion = CliSchemaConversion(schema_filename, convert_to)
+            schema_converted = schema_conversion.convert()
+            
+            if schema_converted:
+                print(f'Schema {schema_filename} has been converted to {convert_to}.')
+                new_filename = update_file_extension(schema_filename, convert_to)
+                write_to_output(new_filename, schema_converted)
+            else: 
+                print(f'Schema {schema_filename} could not be converted to {convert_to}.')
+            
+        except Exception as e:
+            print(f'An error occurred while converting {schema_filename} to {convert_to}: {e}')
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
 
     def do_c_data(self, arg):
