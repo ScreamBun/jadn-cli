@@ -12,6 +12,15 @@ def get_file(dir_path: str, filename: str) -> dict:
             
     return file_data
 
+def get_filepath(dir_path: str, filename: str) -> str:
+    """
+    Returns the absolute full path to the file if it exists, otherwise returns None.
+    """
+    filepath = os.path.join(dir_path, filename)
+    if os.path.isfile(filepath):
+        return os.path.abspath(filepath)
+    return None
+
 def determine_file_type(filename: str) -> str:
     """
     Determine the file type based on the file extension.
