@@ -2,7 +2,7 @@ import json
 import jadn
 
 from jadnxml.builder.xsd_builder import convert_xsd_from_dict
-from src.utils.consts import JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, PLANT_UML_FILE_EXT, SCHEMAS_DIR_PATH, XSD_FILE_EXT
+from src.utils.consts import GV_FILE_EXT, JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, PLANT_UML_FILE_EXT, SCHEMAS_DIR_PATH, XSD_FILE_EXT
 from src.utils.file_utils import get_file
 
 class CliSchemaConversion():
@@ -26,7 +26,16 @@ class CliSchemaConversion():
             schema_data_str = schema_file_data[self.schema_filename]
             schema_data = json.loads(schema_data_str) # Ensure it's a valid JSON string
             
-            if self.convert_to == JSON_FILE_EXT:
+            if self.convert_to == GV_FILE_EXT:
+                gv_style = jadn.convert.diagram_style()
+                gv_style['format'] = 'graphviz'
+                gv_style['detail'] = 'information'
+                gv_style['attributes'] = True
+                gv_style['enums'] = 100
+                
+                return jadn.convert.diagram_dumps(schema_data, gv_style)            
+            
+            elif self.convert_to == JSON_FILE_EXT:
                 converted_schema = jadn.translate.json_schema_dumps(schema_data)
             
             elif self.convert_to == JIDL_FILE_EXT:
