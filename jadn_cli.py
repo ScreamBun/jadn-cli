@@ -138,8 +138,13 @@ class JadnCLI(cmd.Cmd):
             list_files(SCHEMAS_DIR_PATH)
             schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
         
+            if schema_filename is None:
+                return
+        
         if not schema_format:
             convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to: ")
+            if convert_to is None:
+                return
             
         try:
             schema_conversion = CliSchemaConversion(schema_filename, convert_to)

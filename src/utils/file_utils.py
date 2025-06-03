@@ -52,41 +52,46 @@ def file_exists(dirname, filename):
 
 def list_files(dir):
     """
-    List all files in the specified directory.
+    List all files in the specified directory, displaying a file number for each.
     """
     dir = os.path.join(os.getcwd(), dir)
     if not os.path.exists(dir):
         print(f"The '{dir}' directory does not exist.")
         return
-    
+
     files = glob.glob(os.path.join(dir, "*"))
     if files:
         print(f"Files in '{dir}' directory:")
-        for f in files:
-            print("  -", os.path.basename(f))
+        for idx, f in enumerate(files, 1):
+            print(f"  {idx} - {os.path.basename(f)}")
     else:
         print(f"No files found in the '{dir}' directory.")
         
-def pick_an_option(opts, opts_title="Choose an option:", prompt="Enter an option to continue (or type 'exit' to cancel): ") -> str:
+def pick_an_option(opts, opts_title="Choose an option:", prompt="Enter an option number or name (or type 'exit' to cancel): ") -> str:
     """
-    Prompt the user to pick an option.
-    Returns the entered option or None if cancelled.
+    Prompt the user to pick an option by index or name.
+    Returns the selected option (by name) or None if cancelled.
     """
     print(f"{opts_title}")
-    for opt in opts:
-        print("  -", opt)    
+    for idx, opt in enumerate(opts, 1):
+        print(f"  {idx} - {opt}")    
     
     while True:
-        filename = input(prompt).strip()
-        if filename.lower() == 'exit':
+        user_input = input(prompt).strip()
+        if user_input.lower() == 'exit':
             print("Operation cancelled.")
             return None
-        if filename in opts:
-            return filename
-        else:
-            print("Invalid option entered. Please try again or type 'exit' to cancel.") 
-            
-def pick_a_file(dir, prompt="Enter the filename (or type 'exit' to cancel): ") -> str:
+        # Check if input is a valid index
+        if user_input.isdigit():
+            index = int(user_input)
+            if 1 <= index <= len(opts):
+                return opts[index - 1]
+        # Check if input matches an option name
+        if user_input in opts:
+            return user_input
+        print("Invalid option entered. Please try again or type 'exit' to cancel.")    
+                 
+def pick_a_file(dir, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
     """
     Prompt the user to pick a file from the specified directory.
     Returns the selected filename or None if cancelled.
@@ -95,22 +100,28 @@ def pick_a_file(dir, prompt="Enter the filename (or type 'exit' to cancel): ") -
     if not os.path.exists(dir):
         print(f"The '{dir}' directory does not exist.")
         return None
-    
+
     files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
-    
+
     if not files:
         print(f"No files found in the '{dir}' directory.")
         return None
-    
+
     while True:
-        filename = input(prompt).strip()
-        if filename.lower() == 'exit':
+        user_input = input(prompt).strip()
+        if user_input.lower() == 'exit':
             print("Operation cancelled.")
             return None
-        if filename in files:
-            return filename
-        else:
-            print("Invalid filename. Please try again or type 'exit' to cancel.")
+        # Allow picking by index
+        if user_input.isdigit():
+            index = int(user_input)
+            if 1 <= index <= len(files):
+                return files[index - 1]
+        # Allow picking by filename
+        if user_input in files:
+            return user_input
+        
+        print("Invalid selection. Please enter a valid number, filename, or 'exit' to cancel.")
             
 def update_file_extension(filename, new_ext):
     """
