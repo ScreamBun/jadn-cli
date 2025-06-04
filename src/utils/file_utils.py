@@ -52,14 +52,14 @@ def file_exists(dirname, filename):
 
 def list_files(dir):
     """
-    List all files in the specified directory, displaying a file number for each.
+    List all files (not directories or nested files) in the specified directory, displaying a file number for each.
     """
     dir = os.path.join(os.getcwd(), dir)
     if not os.path.exists(dir):
         print(f"The '{dir}' directory does not exist.")
         return
 
-    files = glob.glob(os.path.join(dir, "*"))
+    files = [f for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
     if files:
         print(f"Files in '{dir}' directory:")
         for idx, f in enumerate(files, 1):
@@ -90,18 +90,19 @@ def pick_an_option(opts, opts_title="Choose an option:", prompt="Enter an option
         if user_input in opts:
             return user_input
         print("Invalid option entered. Please try again or type 'exit' to cancel.")    
-                 
+
 def pick_a_file(dir, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
     """
     Prompt the user to pick a file from the specified directory.
     Returns the selected filename or None if cancelled.
+    Only files at the dir level (no directories or nested files) are shown.
     """
     dir = os.path.join(os.getcwd(), dir)
     if not os.path.exists(dir):
         print(f"The '{dir}' directory does not exist.")
         return None
 
-    files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
+    files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
 
     if not files:
         print(f"No files found in the '{dir}' directory.")
@@ -122,7 +123,7 @@ def pick_a_file(dir, prompt="Enter the file number or filename (or type 'exit' t
             return user_input
         
         print("Invalid selection. Please enter a valid number, filename, or 'exit' to cancel.")
-            
+                          
 def update_file_extension(filename, new_ext):
     """
     Update a filename with a new extension.
