@@ -53,7 +53,7 @@ class JadnCLI(cmd.Cmd):
         
         if not arg:
             list_files(SCHEMAS_DIR_PATH)
-            j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter the schema filename to validate (or type 'exit' to cancel): ")
+            j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename to validate (or type 'exit' to cancel): ")
                     
         elif isinstance(arg, str):        
             does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
@@ -94,7 +94,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_v_data(self, args):
-        'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: validate_data <schema_file> <data_file>'
+        'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: v_data <schema_file> <data_file>'
         
         if isinstance(args, str):
             args = args.strip().split()
@@ -104,11 +104,11 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
         
         if not data_filename:
             list_files(DATA_DIR_PATH)
-            data_filename = pick_a_file(DATA_DIR_PATH, "Enter a data filename (or type 'exit' to cancel): ")             
+            data_filename = pick_a_file(DATA_DIR_PATH, "Enter a number or data filename (or type 'exit' to cancel): ")             
             
         try:
             data_validation = CliDataValidation(schema_filename, data_filename)
@@ -126,7 +126,7 @@ class JadnCLI(cmd.Cmd):
 
             
     def do_c_schema(self, args):
-        'Convert a JADN schema to another format. \nUsage: convert_schema <schema_file> <convert_to>'
+        'Convert a JADN schema to another format. \nUsage: c_schema <schema_file> <convert_to>'
 
         if isinstance(args, str):
             args = args.strip().split()
@@ -136,7 +136,7 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
         
             if schema_filename is None:
                 return
@@ -163,18 +163,18 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
 
-    def do_c_data(self, arg):
-        'Convert data to another format coming soon. \nUsage: data_conversion <data_file> <output_format>'
-        if not arg:
-            print('Please provide a data filename and an output format.')
-            return
+    # def do_c_data(self, arg):
+    #     'Convert data to another format coming soon. \nUsage: data_conversion <data_file> <output_format>'
+    #     if not arg:
+    #         print('Please provide a data filename and an output format.')
+    #         return
 
     
-    def do_vis_schema(self, arg):
-        'Visualize the schema ins another format coming soon. \nUsage: vis_schema <schema> <output_format>'
-        if not arg:
-            print('Please provide a data filename and an output format.')
-            return    
+    # def do_vis_schema(self, arg):
+    #     'Visualize the schema ins another format coming soon. \nUsage: vis_schema <schema> <output_format>'
+    #     if not arg:
+    #         print('Please provide a data filename and an output format.')
+    #         return    
             
     def do_gen_err_report(self, arg):
         if self.error_list:
