@@ -122,7 +122,6 @@ class JadnCLI(cmd.Cmd):
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
-            
     def do_schema_t(self, args):
         'Translate a JADN Schema to a JIDL, JSON Schema or an XSD. \nUsage: schema_t <schema_file> <convert_to>'
 
@@ -130,7 +129,7 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
-        schema_format = args[1] if len(args) > 1 else None
+        convert_to = args[1] if len(args) > 1 else None
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
@@ -139,7 +138,7 @@ class JadnCLI(cmd.Cmd):
             if schema_filename is None:
                 return
         
-        if not schema_format:
+        if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
                 return
@@ -167,7 +166,7 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
-        schema_format = args[1] if len(args) > 1 else None
+        convert_to = args[1] if len(args) > 1 else None
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
@@ -176,7 +175,7 @@ class JadnCLI(cmd.Cmd):
             if schema_filename is None:
                 return
         
-        if not schema_format:
+        if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_VIS_FORMATS, opts_title="Schema Visualization Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
                 return
@@ -254,4 +253,19 @@ class JadnCLI(cmd.Cmd):
         self.do_err_report_gen('')
         
 if __name__ == '__main__':
-    JadnCLI().cmdloop()        
+    cli = JadnCLI()
+    # If command-line arguments are provided, try to execute the corresponding command
+    if len(sys.argv) > 1:
+        cmd_name = sys.argv[1]
+        args = sys.argv[2:]
+        method = getattr(cli, f'do_{cmd_name}', None)
+        if method:
+            # Join args as a string for consistency with cmd.Cmd
+            arg_str = " ".join(args)
+            method(arg_str)
+        else:
+            print(f"Unknown command: {cmd_name}")
+        # Optionally, exit after running the command
+        # sys.exit(0)
+    else:
+        cli.cmdloop()  
