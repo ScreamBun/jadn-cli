@@ -8,7 +8,7 @@ import texttable
 from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.validation.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS
+from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
 from src.validation.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -20,8 +20,8 @@ class JadnCLI(cmd.Cmd):
         super().__init__()
 
         if len(sys.argv) == 3:
-            if sys.argv[1] == 'v_schema':             
-                self.do_v_schema(sys.argv[2])
+            if sys.argv[1] == 'schema_v':             
+                self.do_schema_v(sys.argv[2])
         if len(sys.argv) == 4:
             if sys.argv[1] == 'v_data':
                 args = [sys.argv[2], sys.argv[3]]
@@ -42,12 +42,10 @@ class JadnCLI(cmd.Cmd):
     def do_exit(self, arg):
         'Exit the JADN CLI.'
         print('Thank you for using JADN. ')
-        print('  - JADN 1.0 OASIS Standard: https://www.oasis-open.org/standard/specification-for-json-abstract-data-notation-jadn-version-1-0-committee-specification-01/')
-        print('  - JADN 2.0 OASIS CN1: https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html')
         return True      
         
-    def do_v_schema(self, arg = None): 
-        'Validate a JADN Schema. \nUpload your schema to the schemas dir. \nCommand: v_schema <schema_file_name>'
+    def do_schema_v(self, arg = None): 
+        'Validate a JADN Schema. \nUpload your schema to the schemas dir. \nCommand: schema_v <schema_file_name>'
         
         j_schema = None
         
@@ -60,7 +58,7 @@ class JadnCLI(cmd.Cmd):
             
             if not does_exist:
                 print(f"Schema {arg} not found.")
-                self.do_v_schema()
+                self.do_schema_v()
                 return
 
             j_schema = arg
@@ -70,7 +68,7 @@ class JadnCLI(cmd.Cmd):
             
             if not does_exist:
                 print(f"Schema {arg} not found.")
-                self.do_v_schema()
+                self.do_schema_v()
                 return
 
             j_schema = arg[0]
@@ -93,7 +91,7 @@ class JadnCLI(cmd.Cmd):
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
-    def do_v_data(self, args):
+    def do_data_v(self, args):
         'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: v_data <schema_file> <data_file>'
         
         if isinstance(args, str):
@@ -125,8 +123,8 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
             
-    def do_c_schema(self, args):
-        'Convert a JADN schema to another format. \nUsage: c_schema <schema_file> <convert_to>'
+    def do_schema_t(self, args):
+        'Translate a JADN Schema to a JIDL, JSON Schema or an XSD. \nUsage: schema_t <schema_file> <convert_to>'
 
         if isinstance(args, str):
             args = args.strip().split()
@@ -161,22 +159,45 @@ class JadnCLI(cmd.Cmd):
             print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
-
-
-    # def do_c_data(self, arg):
-    #     'Convert data to another format coming soon. \nUsage: data_conversion <data_file> <output_format>'
-    #     if not arg:
-    #         print('Please provide a data filename and an output format.')
-    #         return
-
-    
-    # def do_vis_schema(self, arg):
-    #     'Visualize the schema ins another format coming soon. \nUsage: vis_schema <schema> <output_format>'
-    #     if not arg:
-    #         print('Please provide a data filename and an output format.')
-    #         return    
             
-    def do_gen_err_report(self, arg):
+    def do_schema_vis(self, args):
+        'Convert a JADN Schema to a visual representation,such as MarkDown, HTML, GraphViz or PlantUML. \nUsage: schema_vis <schema_file> <convert_to>'
+
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        schema_filename = args[0] if len(args) > 0 else None
+        schema_format = args[1] if len(args) > 1 else None
+        
+        if not schema_filename:
+            list_files(SCHEMAS_DIR_PATH)
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
+        
+            if schema_filename is None:
+                return
+        
+        if not schema_format:
+            convert_to = pick_an_option(VALID_SCHEMA_VIS_FORMATS, opts_title="Schema Visualization Formats:", prompt="Enter a format to convert the schema to: ")
+            if convert_to is None:
+                return
+            
+        try:
+            schema_conversion = CliSchemaConversion(schema_filename, convert_to)
+            schema_converted = schema_conversion.convert()
+            
+            if schema_converted:
+                print(f' - Schema {schema_filename} has been converted to {convert_to}.')
+                new_filename = update_file_extension(schema_filename, convert_to)
+                write_to_output(new_filename, schema_converted)
+            else: 
+                print(f' - Schema {schema_filename} could not be converted to {convert_to}.')
+            
+        except Exception as e:
+            print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})              
+            
+    def do_err_report_gen(self, arg):
         if self.error_list:
             df = pd.DataFrame(self.error_list)
             filename = get_err_report_filename()
@@ -185,7 +206,7 @@ class JadnCLI(cmd.Cmd):
             print(f"Error report generated: {filepath}")
         return
             
-    def do_out_err_report(self, arg):
+    def do_err_report_out(self, arg):
         'Read the error report.'
         filename = get_err_report_filename()
         filepath = os.path.join(OUTPUT_DIR_PATH, filename)
@@ -203,6 +224,10 @@ class JadnCLI(cmd.Cmd):
     def do_clear(self, arg):
         'Clear the screen.'
         print('\033c', end='')
+        
+    def do_man(self, arg):
+        """List available commands in a table."""
+        self.do_help(arg)
     
     def do_help(self, arg):
       """List available commands in a table."""
@@ -213,10 +238,20 @@ class JadnCLI(cmd.Cmd):
           docstring = getattr(self, command).__doc__
           command_name = command[3:]  # Remove "do_" prefix
           table.add_row([command_name, docstring or "No description available"])
-      print(table.draw())    
+      print(table.draw())
+      
+    def do_about(self, arg):
+        """List information and references about the JADN CLI."""
+        table = texttable.Texttable()
+        # table.header(["", ""])
+        table.add_row(["JADN CLI", "A command-line interface for working with JADN schemas and data."])
+        table.add_row(["Version", "1.0.0"]) 
+        table.add_row(["JADN 2.0 OASIS Spec", "https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html"])
+        table.add_row(["JADN PyPi", "https://pypi.org/project/jadn/"])
+        print(table.draw())        
         
     def postloop(self):
-        self.do_gen_err_report('')
+        self.do_err_report_gen('')
         
 if __name__ == '__main__':
     JadnCLI().cmdloop()        
