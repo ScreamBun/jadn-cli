@@ -5,11 +5,12 @@ import sys
 import pandas as pd
 import texttable
 
+from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
-from src.validation.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
-from src.validation.cli_schema_conversion import CliSchemaConversion
+from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
+from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
     
@@ -102,11 +103,11 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
         
         if not data_filename:
-            list_files(DATA_DIR_PATH)
-            data_filename = pick_a_file(DATA_DIR_PATH, "Enter a number or data filename (or type 'exit' to cancel): ")             
+            list_files(DATA_DIR_PATH, is_jadn_only=False)
+            data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
             
         try:
             data_validation = CliDataValidation(schema_filename, data_filename)
@@ -158,6 +159,37 @@ class JadnCLI(cmd.Cmd):
             print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
+            
+    def do_schema_rev_t(self, args):
+        'Reverse translate JIDL or JSON Schema into a JADN Schema. \nUsage: schema <schema_file>'
+
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        filename = args[0] if len(args) > 0 else None
+        
+        if not filename:
+            list_files(SCHEMAS_DIR_PATH, is_jadn_only=False)
+            filename = pick_a_file(SCHEMAS_DIR_PATH, is_jadn_only=False, prompt="Enter a schema by name or number (type 'exit' to cancel): ")        
+        
+            if filename is None:
+                return
+            
+        try:
+            rev_translate = SchemaReverseTranslate(filename)
+            file_translated = rev_translate.translate()
+            
+            if file_translated:
+                print(f'  - {filename} has been reverse translated into a JADN Schema.')
+                new_filename = update_file_extension(filename, JADN_SCHEMA_FILE_EXT)
+                write_to_output(new_filename, file_translated)
+            else: 
+                print(f'  - {filename} could not be reverse translated into a JADN Schema.')
+            
+        except Exception as e:
+            print(f'  - An error occurred while reverse translating {filename} to {JADN_SCHEMA_FILE_EXT}: {e}')
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})            
             
     def do_schema_vis(self, args):
         'Convert a JADN Schema to a visual representation,such as MarkDown, HTML, GraphViz or PlantUML. \nUsage: schema_vis <schema_file> <convert_to>'

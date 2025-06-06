@@ -3,7 +3,7 @@ import jadnvalidation
 from src.utils.consts import DATA_DIR_PATH, VALID_DATA_FORMATS
 from src.utils.file_utils import determine_file_type, get_file
 from src.utils.gen_utils import get_schema_roots
-from src.validation.cli_schema_validation import CliSchemaValidation
+from src.logic.cli_schema_validation import CliSchemaValidation
 
 
 class CliDataValidation():
