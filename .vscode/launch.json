@@ -4,11 +4,20 @@
       "name": "Python Debugger: jadn_cli with Arguments",
       "type": "debugpy",
       "request": "launch",
-    //   "program": "${file}",
+      // "program": "${file}",
       "program": "${workspaceFolder}/jadn_cli.py",
       "console": "integratedTerminal",
       "args": "${command:pickArgs}",
-      "justMyCode": "false"
-    }
+      "justMyCode": false
+    },
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "purpose": ["debug-test"]
+    }    
   ]
 }

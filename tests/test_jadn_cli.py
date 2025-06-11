@@ -7,8 +7,8 @@ def test_do_v_schema():
     arg = "music-database.jadn"
     
     cli = JadnCLI()
-    cli.do_v_schema(arg)
-    cli.do_gen_err_report('')
+    cli.do_schema_v(arg)
+    cli.do_err_report_gen('')
     
     assert cli.error_list == [] 
     
@@ -16,8 +16,8 @@ def test_do_v_data():
     arg = "music-database.jadn music_library.json"
     
     cli = JadnCLI()
-    cli.do_v_data(arg)
-    cli.do_gen_err_report('')
+    cli.do_data_v(arg)
+    cli.do_err_report_gen('')
     
     assert cli.error_list == []     
     
