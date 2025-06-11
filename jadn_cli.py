@@ -24,7 +24,7 @@ class JadnCLI(cmd.Cmd):
             if sys.argv[1] == 'schema_v':             
                 self.do_schema_v(sys.argv[2])
         if len(sys.argv) == 4:
-            if sys.argv[1] == 'v_data':
+            if sys.argv[1] == 'data_v':
                 args = [sys.argv[2], sys.argv[3]]
                 self.do_v_data(args)
         else: 
