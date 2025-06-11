@@ -1,6 +1,6 @@
 # jadn-cli
 
-The JADN (JSON Abstract Data Notation) CLI (Command Line Interface) provides the ability to validate, convert, translate and transform JADN compliant schemas.  In addition, the cli provides the ability to validate JSON, CBOR or XML data against JADN schemas.
+The JADN (JSON Abstract Data Notation) CLI (Command Line Interface) provides the ability to validate, convert, translate and transform JADN compliant schemas.  In addition, the CLI provides the ability to validate JSON, CBOR or XML data against JADN schemas.
 
 ## Getting Started with jadn-cli
 
@@ -45,13 +45,13 @@ Follow these steps to set up and run the JADN CLI from scratch:
    ```
 
 7. **Run a Command**
-   You can run a command from the within CLI script.  
+   You can run a command from within the CLI script.  
    This method provides help context and leads you through a series of prompts.  
 
-   Also, if you don't have a schema or data yet, we have preloaded the music-database.jadn scheam and a music_library.json file for you to try out.  Here's an example:
+   Also, if you don't have a schema or data yet, we have preloaded the music-database.jadn schema and a music_library.json file for you to try out.  Here's an example:
 
    ```sh
-   jadn) schema_v my_schema.jadn
+   schema_v my_schema.jadn
    ```
 
    Or run a command directly from the terminal:
