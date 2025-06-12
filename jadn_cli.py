@@ -6,6 +6,7 @@ import pandas as pd
 import texttable
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
+from src.utils.config import get_config_value
 from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
@@ -19,17 +20,7 @@ class JadnCLI(cmd.Cmd):
     
     def __init__(self):
         super().__init__()
-
-        if len(sys.argv) == 3:
-            if sys.argv[1] == 'schema_v':             
-                self.do_schema_v(sys.argv[2])
-        if len(sys.argv) == 4:
-            if sys.argv[1] == 'data_v':
-                args = [sys.argv[2], sys.argv[3]]
-                self.do_v_data(args)
-        else: 
-            self.intro = '''Welcome to the JSON Abstract Data Notation (JADN) CLI tool. \nView the list of commands below to get started.'''
-            
+        self.intro = '''Welcome to the JSON Abstract Data Notation (JADN) CLI tool. \nView the list of commands below to get started.'''
         self.prompt = '(jadn) ' 
 
     def cmdloop(self, intro=None):
@@ -93,13 +84,19 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_v(self, args):
-        'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: v_data <schema_file> <data_file>'
+        'Validate data against a JADN schema.  \nUpload files to the schemas and data directories. \nCommand: data_v <schema_file> <data_file>'
         
         if isinstance(args, str):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not schema_filename or not data_filename:
+                print("Error: Commands missing. Use 'python jadn_cli.py data_v <schema_file> <data_filename>'")
+                sys.exit(1)          
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
@@ -132,6 +129,12 @@ class JadnCLI(cmd.Cmd):
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
         
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not schema_filename or not convert_to:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_t <schema_file> <convert_to>'")
+                sys.exit(1)            
+        
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
             schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
@@ -161,12 +164,18 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_schema_rev_t(self, args):
-        'Reverse translate JIDL or JSON Schema into a JADN Schema. \nUsage: schema <schema_file>'
+        'Reverse translate JIDL or JSON Schema into a JADN Schema. \nUsage: schema_rev_t <schema_file>'
 
         if isinstance(args, str):
             args = args.strip().split()
 
         filename = args[0] if len(args) > 0 else None
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not filename:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_rev_t <schema_file>'")
+                sys.exit(1)          
         
         if not filename:
             list_files(SCHEMAS_DIR_PATH, is_jadn_only=False)
@@ -199,6 +208,12 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not schema_filename or not convert_to:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_vis <schema_file> <convert_to>'")
+                sys.exit(1)        
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
@@ -300,4 +315,9 @@ if __name__ == '__main__':
         # Optionally, exit after running the command
         # sys.exit(0)
     else:
-        cli.cmdloop()  
+        use_prompts = get_config_value("use_prompts", True)
+        if use_prompts:
+            cli.cmdloop()  
+        else:
+            print("No command provided. Use 'jadn_cli.py help' to see available commands.")
+            sys.exit(1)
