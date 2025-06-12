@@ -267,6 +267,18 @@ class JadnCLI(cmd.Cmd):
             print("Error log cleared.")
         else:
             print("No error log found.")
+    
+    def do_clear_reports(self, arg = None):
+        'Clear all generated error reports.'
+        directory = 'output'
+        extension = '.csv'
+
+        for filename in os.listdir(directory):
+            if filename.endswith(extension):
+                file_path = os.path.join(directory, filename)
+                os.remove(file_path)
+        
+        print("Cleared error reports.")
 
     def do_man(self, arg):
         """List available commands in a table."""
