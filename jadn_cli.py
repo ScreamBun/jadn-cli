@@ -15,7 +15,7 @@ from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
     
-    logging.basicConfig(filename='jadn_cli_errors.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='jadn_cli_errors.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
     error_list = []
     
     def __init__(self):
@@ -270,7 +270,31 @@ class JadnCLI(cmd.Cmd):
     def do_clear(self, arg):
         'Clear the screen.'
         print('\033c', end='')
+
+    def do_clear_log(self, arg = None):
+        'Clear the error log. \nPast errors will not be reflected in generated error reports.'
         
+        filepath = os.path.join('jadn_cli_errors.log')
+        if os.path.exists(filepath):
+            self.error_list = []
+            with open(filepath, "r+") as log:
+                log.truncate(0)
+            print("Error log cleared.")
+        else:
+            print("No error log found.")
+    
+    def do_clear_reports(self, arg = None):
+        'Clear all generated error reports.'
+        directory = 'output'
+        extension = '.csv'
+
+        for filename in os.listdir(directory):
+            if filename.endswith(extension):
+                file_path = os.path.join(directory, filename)
+                os.remove(file_path)
+        
+        print("Cleared error reports.")
+
     def do_man(self, arg):
         """List available commands in a table."""
         self.do_help(arg)
