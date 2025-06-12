@@ -6,7 +6,7 @@ import pandas as pd
 import texttable
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
-from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
+from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
 from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
@@ -49,11 +49,20 @@ class JadnCLI(cmd.Cmd):
         'Validate a JADN Schema. \nUpload your schema to the schemas dir. \nCommand: schema_v <schema_file_name>'
         
         j_schema = None
-        
         if not arg:
             list_files(SCHEMAS_DIR_PATH)
             j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename to validate (or type 'exit' to cancel): ")
-                    
+        
+        elif arg.isdigit():        
+            file_map = map_files(SCHEMAS_DIR_PATH)
+            try: 
+                j_schema = file_map[int(arg)]
+                
+            except:
+                print(f"Schema not found")
+                self.do_schema_v()
+                return
+
         elif isinstance(arg, str):        
             does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
             
@@ -100,14 +109,36 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
+
+        schema_map = {}
+        data_map = {}
         
+        wrong_index = False #If user uses numeric args and gives wrong arg, triggers listing prompt
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")  
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                wrong_index = True
         
         if not data_filename:
             list_files(DATA_DIR_PATH, is_jadn_only=False)
             data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
+        elif data_filename.isdigit():
+            data_map = map_files(DATA_DIR_PATH, is_jadn_only=False)
+            try:
+                data_filename = data_map[int(data_filename)]
+            except:
+                print(f"Data {arg} not found.")
+                wrong_index = True
+
+        if wrong_index:
+            self.do_data_v(args = [])
+            return
             
         try:
             data_validation = CliDataValidation(schema_filename, data_filename)
