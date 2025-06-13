@@ -133,7 +133,7 @@ class JadnCLI(cmd.Cmd):
             try:
                 data_filename = data_map[int(data_filename)].split('/')[-1]
             except:
-                print(f"Data {arg} not found.")
+                print(f"Data {data_filename} not found.")
                 self.do_data_v(args = [])
                 return
             
@@ -341,7 +341,7 @@ class JadnCLI(cmd.Cmd):
     
     def do_clear_reports(self, arg = None):
         'Clear all generated error reports.'
-        directory = 'output'
+        directory = OUTPUT_DIR_PATH
         extension = '.csv'
 
         for filename in os.listdir(directory):
