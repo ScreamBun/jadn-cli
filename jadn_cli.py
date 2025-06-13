@@ -56,7 +56,7 @@ class JadnCLI(cmd.Cmd):
         elif arg.isdigit():        
             file_map = map_files(SCHEMAS_DIR_PATH)
             try: 
-                j_schema = file_map[int(arg)]
+                j_schema = file_map[int(arg)].split('/')[-1]
                 
             except:
                 print(f"Schema not found")
@@ -113,17 +113,17 @@ class JadnCLI(cmd.Cmd):
         schema_map = {}
         data_map = {}
         
-        wrong_index = False #If user uses numeric args and gives wrong arg, triggers listing prompt
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
             schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")  
         elif schema_filename.isdigit():
             schema_map = map_files(SCHEMAS_DIR_PATH) 
             try:     
-                schema_filename = schema_map[int(schema_filename)]
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
             except:
                 print(f"Schema {schema_filename} not found.")
-                wrong_index = True
+                self.do_data_v(args = [])
+                return
         
         if not data_filename:
             list_files(DATA_DIR_PATH, is_jadn_only=False)
@@ -131,14 +131,11 @@ class JadnCLI(cmd.Cmd):
         elif data_filename.isdigit():
             data_map = map_files(DATA_DIR_PATH, is_jadn_only=False)
             try:
-                data_filename = data_map[int(data_filename)]
+                data_filename = data_map[int(data_filename)].split('/')[-1]
             except:
                 print(f"Data {arg} not found.")
-                wrong_index = True
-
-        if wrong_index:
-            self.do_data_v(args = [])
-            return
+                self.do_data_v(args = [])
+                return
             
         try:
             data_validation = CliDataValidation(schema_filename, data_filename)
@@ -162,6 +159,8 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
+
+        schema_map = {}
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
@@ -169,10 +168,25 @@ class JadnCLI(cmd.Cmd):
         
             if schema_filename is None:
                 return
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_schema_t(args = [])
+                return
         
         if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_t(args = [])
                 return
             
         try:
@@ -198,12 +212,21 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         filename = args[0] if len(args) > 0 else None
+        schemas_map = {}
         
         if not filename:
             list_files(SCHEMAS_DIR_PATH, is_jadn_only=False)
             filename = pick_a_file(SCHEMAS_DIR_PATH, is_jadn_only=False, prompt="Enter a schema by name or number (type 'exit' to cancel): ")        
         
             if filename is None:
+                return
+        elif filename.isdigit():
+            schemas_map = map_files(SCHEMAS_DIR_PATH, is_jadn_only=False) 
+            try:     
+                filename = schemas_map[int(filename)].split('/')[-1]
+            except:
+                print(f"Schema {filename} not found.")
+                self.do_schema_rev_t(args = [])
                 return
             
         try:
@@ -231,16 +254,33 @@ class JadnCLI(cmd.Cmd):
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
         
+        schema_map = {}
+
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
             schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
         
             if schema_filename is None:
                 return
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_schema_vis(args = [])
+                return
         
         if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_VIS_FORMATS, opts_title="Schema Visualization Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_VIS_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_vis(args = [])
                 return
             
         try:
