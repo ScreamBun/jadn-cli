@@ -7,7 +7,7 @@ import texttable
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
-from src.utils.file_utils import list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
+from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
 from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
@@ -40,11 +40,20 @@ class JadnCLI(cmd.Cmd):
         'Validate a JADN Schema. \nUpload your schema to the schemas dir. \nCommand: schema_v <schema_file_name>'
         
         j_schema = None
-        
         if not arg:
             list_files(SCHEMAS_DIR_PATH)
             j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename to validate (or type 'exit' to cancel): ")
-                    
+        
+        elif arg.isdigit():        
+            file_map = map_files(SCHEMAS_DIR_PATH)
+            try: 
+                j_schema = file_map[int(arg)].split('/')[-1]
+                
+            except:
+                print(f"Schema not found")
+                self.do_schema_v()
+                return
+
         elif isinstance(arg, str):        
             does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
             
@@ -91,6 +100,15 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
+
+        schema_map = {}
+        data_map = {}
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not schema_filename or not data_filename:
+                print("Error: Commands missing. Use 'python jadn_cli.py data_v <schema_file> <data_filename>'")
+                sys.exit(1)          
         
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
@@ -100,11 +118,27 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")  
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_data_v(args = [])
+                return
         
         if not data_filename:
             list_files(DATA_DIR_PATH, is_jadn_only=False)
             data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
+        elif data_filename.isdigit():
+            data_map = map_files(DATA_DIR_PATH, is_jadn_only=False)
+            try:
+                data_filename = data_map[int(data_filename)].split('/')[-1]
+            except:
+                print(f"Data {data_filename} not found.")
+                self.do_data_v(args = [])
+                return
             
         try:
             data_validation = CliDataValidation(schema_filename, data_filename)
@@ -128,6 +162,14 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
+
+        schema_map = {}
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not schema_filename or not convert_to:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_t <schema_file> <convert_to>'")
+                sys.exit(1)            
         
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
@@ -141,10 +183,25 @@ class JadnCLI(cmd.Cmd):
         
             if schema_filename is None:
                 return
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_schema_t(args = [])
+                return
         
         if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_t(args = [])
                 return
             
         try:
@@ -170,6 +227,13 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         filename = args[0] if len(args) > 0 else None
+        schemas_map = {}
+        
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not filename:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_rev_t <schema_file>'")
+                sys.exit(1)          
         
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
@@ -182,6 +246,14 @@ class JadnCLI(cmd.Cmd):
             filename = pick_a_file(SCHEMAS_DIR_PATH, is_jadn_only=False, prompt="Enter a schema by name or number (type 'exit' to cancel): ")        
         
             if filename is None:
+                return
+        elif filename.isdigit():
+            schemas_map = map_files(SCHEMAS_DIR_PATH, is_jadn_only=False) 
+            try:     
+                filename = schemas_map[int(filename)].split('/')[-1]
+            except:
+                print(f"Schema {filename} not found.")
+                self.do_schema_rev_t(args = [])
                 return
             
         try:
@@ -209,6 +281,8 @@ class JadnCLI(cmd.Cmd):
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
         
+        schema_map = {}
+
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
             if not schema_filename or not convert_to:
@@ -221,10 +295,25 @@ class JadnCLI(cmd.Cmd):
         
             if schema_filename is None:
                 return
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_schema_vis(args = [])
+                return
         
         if not convert_to:
             convert_to = pick_an_option(VALID_SCHEMA_VIS_FORMATS, opts_title="Schema Visualization Formats:", prompt="Enter a format to convert the schema to: ")
             if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_VIS_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_vis(args = [])
                 return
             
         try:
@@ -285,7 +374,7 @@ class JadnCLI(cmd.Cmd):
     
     def do_clear_reports(self, arg = None):
         'Clear all generated error reports.'
-        directory = 'output'
+        directory = OUTPUT_DIR_PATH
         extension = '.csv'
 
         for filename in os.listdir(directory):

@@ -74,6 +74,31 @@ def list_files(dir, is_jadn_only=True):
     else:
         print(f"No files found in the '{dir}' directory.")
 
+def map_files(dir, is_jadn_only=True):
+    """
+    Map all files in the specific directory to their file number.
+    To allow users to be able to run commands with numbers instead of filenames.
+    """
+    dir = os.path.join(os.getcwd(), dir)
+    file_dict = {}
+
+    if not os.path.exists(dir):
+        print(f"The '{dir}' directory does not exist.")
+        return
+
+    if is_jadn_only:
+        files = [f for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
+    else:
+        files = [f for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
+
+    if files:
+        for idx, f in enumerate(files, 1):
+            file_dict[idx] = f
+    else:
+        print(f"No files found in the '{dir}' directory.")
+
+    return file_dict
+
 # def list_files(dir, file_ext=None):
     # """
     # List all files (not directories or nested files) in the specified directory, displaying a file number for each.
