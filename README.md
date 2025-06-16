@@ -60,6 +60,21 @@ Follow these steps to set up and run the JADN CLI from scratch:
    python jadn_cli.py schema_v my_schema.jadn
    ```
 
+   Don't want to type in the entire file name? Enter a command with no args to get a numbering option:
+
+   ```sh
+   (jadn) schema_v
+   Files in './schemas' directory:
+   1 - music-database.jadn
+   Enter a schema by name or number (type 'exit' to cancel): 1
+   ```
+
+   Already know what number to use? Enter it in as an argument:
+
+   ```sh
+   (jadn) schema_v 1
+   ```
+
    Run help or man to see a list of commands and examples.
 
 **Note:**  
