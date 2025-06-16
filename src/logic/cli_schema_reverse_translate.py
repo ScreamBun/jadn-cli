@@ -34,7 +34,7 @@ class SchemaReverseTranslate():
                 schema_data = json.loads(schema_data_str) # Ensure it's a valid JSON string
                 kwargs = { "fmt": schema_type,}
                 converted_schema = json_to_jadn_dumps(schema_data, **kwargs)
-                converted_schema = jadn.translate.jsonschema_w.json_schema_dumps(converted_schema)
+                #converted_schema = jadn.translate.jsonschema_w.json_schema_dumps(converted_schema)
                 
         except Exception as e:
             raise ValueError(f"Schema Invalid - {e}")
