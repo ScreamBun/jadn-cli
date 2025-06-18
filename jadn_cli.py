@@ -4,7 +4,10 @@ import os
 import sys
 import pandas as pd
 import texttable
+import jadn
+import jadn.convert
 
+from jadnschema.convert import SchemaFormats, dumps, html_dumps, json_to_jadn_dumps
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
@@ -274,12 +277,14 @@ class JadnCLI(cmd.Cmd):
             
     def do_schema_vis(self, args):
         'Convert a JADN Schema to a visual representation,such as MarkDown, HTML, GraphViz or PlantUML. \nUsage: schema_vis <schema_file> <convert_to>'
+        vis_opts_list = ["conceptual", "logical", "information"]
 
         if isinstance(args, str):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
+        vis_opt = args[2] if len(args) > 2 else None
         
         schema_map = {}
 
@@ -315,10 +320,29 @@ class JadnCLI(cmd.Cmd):
                 print(f"Invalid format number: {convert_to}")
                 self.do_schema_vis(args = [])
                 return
+
+        if convert_to == "gv" or convert_to == "puml":
+            if (not vis_opt and (vis_opt not in vis_opts_list) and (vis_opt not in [1,2,3])):
+                vis_opt = pick_an_option(vis_opts_list, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
+                if vis_opt is None:
+                    return
+                # Prompt if they are ok with default options
+            elif vis_opt.isdigit():
+                try:
+                    vis_opt = vis_opts_list[int(vis_opt) - 1]
+                except IndexError:
+                    print(f"Invalid option number: {vis_opt}")
+                    self.do_schema_vis(args = [])
+                    return
+        else:
+            vis_opt = None
             
         try:
             schema_conversion = CliSchemaConversion(schema_filename, convert_to)
-            schema_converted = schema_conversion.convert()
+            if not vis_opt: 
+                schema_converted = schema_conversion.convert()
+            else:
+                schema_converted = schema_conversion.convert_with_opts(vis_opt)
             
             if schema_converted:
                 print(f' - Schema {schema_filename} has been converted to {convert_to}.')
