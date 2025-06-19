@@ -13,7 +13,7 @@ from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS
 from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -277,7 +277,6 @@ class JadnCLI(cmd.Cmd):
             
     def do_schema_vis(self, args):
         'Convert a JADN Schema to a visual representation,such as MarkDown, HTML, GraphViz or PlantUML. \nUsage: schema_vis <schema_file> <convert_to>'
-        vis_opts_list = ["conceptual", "logical", "information"]
 
         if isinstance(args, str):
             args = args.strip().split()
@@ -322,14 +321,14 @@ class JadnCLI(cmd.Cmd):
                 return
 
         if convert_to == "gv" or convert_to == "puml":
-            if (not vis_opt and (vis_opt not in vis_opts_list) and (vis_opt not in [1,2,3])):
-                vis_opt = pick_an_option(vis_opts_list, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
+            if (not vis_opt and (vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and (vis_opt not in [1,2,3])):
+                vis_opt = pick_an_option(VALID_SCHEMA_VIS_OPTIONS, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
                 if vis_opt is None:
                     return
                 # Prompt if they are ok with default options
             elif vis_opt.isdigit():
                 try:
-                    vis_opt = vis_opts_list[int(vis_opt) - 1]
+                    vis_opt = VALID_SCHEMA_VIS_OPTIONS[int(vis_opt) - 1]
                 except IndexError:
                     print(f"Invalid option number: {vis_opt}")
                     self.do_schema_vis(args = [])
