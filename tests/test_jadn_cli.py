@@ -5,31 +5,6 @@ import glob
 from jadn_cli import JadnCLI
 from src.utils.consts import OUTPUT_DIR_PATH
 
-############# TESTING COMMAND: clear_log #############
-def test_do_clear_log():
-    arg = "invalid-music-database.jadn"
-
-    cli = JadnCLI()
-
-    cli.do_schema_v(arg)
-    cli.do_clear_log('')
-    cli.do_err_report_gen('')
-    
-    assert cli.error_list == []
-
-############# TESTING COMMAND: clear_reports #############
-def test_do_clear_reports():
-    arg = "invalid-music-database.jadn"
-
-    cli = JadnCLI()
-
-    cli.do_schema_v(arg)
-    cli.do_err_report_gen('')
-    cli.do_clear_reports('')
-
-    csv_files = glob.glob(os.path.join(OUTPUT_DIR_PATH, "*.csv"))
-    assert len(csv_files) == 0
-
 ############# TESTING COMMAND: schema_v <schema_file> #############
 def test_do_v_schema():
     arg = "music-database.jadn"
@@ -196,3 +171,28 @@ def test_schema_vis_puml():
     cli.do_err_report_gen('')
     
     assert cli.error_list == []
+
+############# TESTING COMMAND: clear_log #############
+def test_do_clear_log():
+    arg = "invalid-music-database.jadn"
+
+    cli = JadnCLI()
+
+    cli.do_schema_v(arg)
+    cli.do_clear_log('')
+    cli.do_err_report_gen('')
+    
+    assert cli.error_list == []
+
+############# TESTING COMMAND: clear_reports #############
+def test_do_clear_reports():
+    arg = "invalid-music-database.jadn"
+
+    cli = JadnCLI()
+
+    cli.do_schema_v(arg)
+    cli.do_err_report_gen('')
+    cli.do_clear_reports('')
+
+    csv_files = glob.glob(os.path.join(OUTPUT_DIR_PATH, "*.csv"))
+    assert len(csv_files) == 0
