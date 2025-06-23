@@ -4,10 +4,7 @@ import os
 import sys
 import pandas as pd
 import texttable
-import jadn
-import jadn.convert
 
-from jadnschema.convert import SchemaFormats, dumps, html_dumps, json_to_jadn_dumps
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
