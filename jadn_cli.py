@@ -321,7 +321,9 @@ class JadnCLI(cmd.Cmd):
                 return
 
         if convert_to == "gv" or convert_to == "puml":
-            if (not vis_opt and (vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and (vis_opt not in [1,2,3])):
+            if not vis_opt:
+                vis_opt = VALID_SCHEMA_VIS_OPTIONS[2]
+            elif ((vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and (vis_opt not in [1,2,3])):
                 vis_opt = pick_an_option(VALID_SCHEMA_VIS_OPTIONS, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
                 if vis_opt is None:
                     return
@@ -341,7 +343,7 @@ class JadnCLI(cmd.Cmd):
             if not vis_opt: 
                 schema_converted = schema_conversion.convert()
             else:
-                schema_converted = schema_conversion.convert_with_opts(vis_opt)
+                schema_converted = schema_conversion.convert(vis_opt)
             
             if schema_converted:
                 print(f' - Schema {schema_filename} has been converted to {convert_to}.')
