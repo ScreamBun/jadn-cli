@@ -13,7 +13,7 @@ from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
 from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -320,14 +320,11 @@ class JadnCLI(cmd.Cmd):
                 self.do_schema_vis(args = [])
                 return
 
-        if convert_to == "gv" or convert_to == "puml":
-            if not vis_opt:
-                vis_opt = VALID_SCHEMA_VIS_OPTIONS[2]
-            elif ((vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and (vis_opt not in [1,2,3])):
+        if convert_to == GV_FILE_EXT or convert_to == PLANT_UML_FILE_EXT:
+            if ((vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and not (vis_opt and vis_opt.isdigit() and (1 <= int(vis_opt) <= len(VALID_SCHEMA_VIS_OPTIONS)))):
                 vis_opt = pick_an_option(VALID_SCHEMA_VIS_OPTIONS, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
                 if vis_opt is None:
                     return
-                # Prompt if they are ok with default options
             elif vis_opt.isdigit():
                 try:
                     vis_opt = VALID_SCHEMA_VIS_OPTIONS[int(vis_opt) - 1]
