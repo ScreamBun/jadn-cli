@@ -77,7 +77,7 @@ Follow these steps to set up and run the JADN CLI from scratch:
 
    Run help or man to see a list of commands and examples.
 
-**Note:**  
+**Note:**
 
 - Replace `my_schema.jadn` with the actual filename of your schema in the `schemas` directory.
 - To disable helper prompts and run the cli inline only, go to the config.toml file and change use_prompts to false.
