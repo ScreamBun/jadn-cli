@@ -16,7 +16,7 @@ class CliSchemaConversion():
         self.schema_filename = schema_filename
         self.convert_to = convert_to
 
-    def convert(self):
+    def convert(self, opt = 'information'):
         converted_schema = None
         
         schema_file_data = get_file(SCHEMAS_DIR_PATH, self.schema_filename)
@@ -30,7 +30,7 @@ class CliSchemaConversion():
             if self.convert_to == GV_FILE_EXT:
                 gv_style = jadn.convert.diagram_style()
                 gv_style['format'] = 'graphviz'
-                gv_style['detail'] = 'information'
+                gv_style['detail'] = opt
                 gv_style['attributes'] = True
                 gv_style['enums'] = 100
                 
@@ -58,7 +58,7 @@ class CliSchemaConversion():
             elif self.convert_to == PLANT_UML_FILE_EXT:
                 puml_style = jadn.convert.diagram_style()
                 puml_style['format'] = 'plantuml'
-                puml_style['detail'] = 'information'
+                puml_style['detail'] = opt
                 puml_style['attributes'] = True
                 puml_style['enums'] = 100
                 converted_schema = jadn.convert.diagram_dumps(schema_data, puml_style)

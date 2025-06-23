@@ -10,7 +10,7 @@ from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
 from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -280,6 +280,7 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         convert_to = args[1] if len(args) > 1 else None
+        vis_opt = args[2] if len(args) > 2 else None
         
         schema_map = {}
 
@@ -315,10 +316,25 @@ class JadnCLI(cmd.Cmd):
                 print(f"Invalid format number: {convert_to}")
                 self.do_schema_vis(args = [])
                 return
+
+        if convert_to == GV_FILE_EXT or convert_to == PLANT_UML_FILE_EXT:
+            if ((vis_opt not in VALID_SCHEMA_VIS_OPTIONS) and not (vis_opt and vis_opt.isdigit() and (1 <= int(vis_opt) <= len(VALID_SCHEMA_VIS_OPTIONS)))):
+                vis_opt = pick_an_option(VALID_SCHEMA_VIS_OPTIONS, opts_title="Visualization Options (Default = information):", prompt="Enter an option for the visualization: ")
+                if vis_opt is None:
+                    return
+            elif vis_opt.isdigit():
+                try:
+                    vis_opt = VALID_SCHEMA_VIS_OPTIONS[int(vis_opt) - 1]
+                except IndexError:
+                    print(f"Invalid option number: {vis_opt}")
+                    self.do_schema_vis(args = [])
+                    return
+        else:
+            vis_opt = None
             
         try:
             schema_conversion = CliSchemaConversion(schema_filename, convert_to)
-            schema_converted = schema_conversion.convert()
+            schema_converted = schema_conversion.convert(vis_opt)
             
             if schema_converted:
                 print(f' - Schema {schema_filename} has been converted to {convert_to}.')
