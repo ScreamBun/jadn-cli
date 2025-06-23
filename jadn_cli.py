@@ -340,10 +340,7 @@ class JadnCLI(cmd.Cmd):
             
         try:
             schema_conversion = CliSchemaConversion(schema_filename, convert_to)
-            if not vis_opt: 
-                schema_converted = schema_conversion.convert()
-            else:
-                schema_converted = schema_conversion.convert(vis_opt)
+            schema_converted = schema_conversion.convert(vis_opt)
             
             if schema_converted:
                 print(f' - Schema {schema_filename} has been converted to {convert_to}.')
