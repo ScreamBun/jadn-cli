@@ -102,7 +102,7 @@ def test_schema_vis_html():
     assert cli.error_list == []
 
 def test_schema_vis_gv():
-    arg = "music-database.jadn gv"
+    arg = "music-database.jadn gv information"
     
     cli = JadnCLI()
     cli.do_clear_log('')
@@ -113,7 +113,7 @@ def test_schema_vis_gv():
     assert cli.error_list == []
 
 def test_schema_vis_puml():
-    arg = "music-database.jadn puml"
+    arg = "music-database.jadn puml information"
     
     cli = JadnCLI()
     cli.do_clear_log('')
