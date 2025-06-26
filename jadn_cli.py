@@ -37,7 +37,7 @@ class JadnCLI(cmd.Cmd):
         return True      
         
     def do_schema_v(self, arg = None): 
-        'Validate a JADN Schema. \n\nFirst, load your schema into the schemas directory. \nNext, run the command: \n\npython jadn_cli.py schema_v <schema_filename>'        
+        'Validate a JADN Schema. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_v <schema_filename>'        
         
         j_schema = None
         if not arg:
@@ -93,7 +93,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_v(self, args):
-        'Validate data against a JADN schema. \n\nFirst, load your schema into the schemas directory. \nNext, load your data file to the data directory. \nThen, run the command: \n\npython jadn_cli.py data_v <schema_filename> <data_filename>'
+        'Validate data against a JADN schema. \n\nFirst, load your schema into the schemas directory, \nnext load your data file to the data directory, and \nthen, run the command: \n\npython jadn_cli.py data_v <schema_filename> <data_filename>'
         
         if isinstance(args, str):
             args = args.strip().split()
@@ -155,7 +155,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
     def do_schema_t(self, args):
-        'Translate a JADN Schema to a JIDL, JSON Schema or an XSD. \n\nFirst, load your schema into the schemas directory. \nNext, run the command: \n\npython jadn_cli.py schema_t <schema_filename> <jidl, json, or xsd>'
+        'Translate a JADN Schema to a JIDL, JSON Schema or an XSD. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_t <schema_filename> <jidl, json, or xsd>'
 
         if isinstance(args, str):
             args = args.strip().split()
@@ -221,7 +221,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_schema_rev_t(self, args):
-        'Reverse translate JIDL or JSON Schema into a JADN Schema. \n\nFirst, load your schema into the schemas directory. \nNext, run the command: \n\npython jadn_cli.py schema_rev_t <schema_filename>'
+        'Reverse translate JIDL or JSON Schema into a JADN Schema. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_rev_t <schema_filename>'
 
         if isinstance(args, str):
             args = args.strip().split()
@@ -273,7 +273,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})            
             
     def do_schema_vis(self, args):
-        'Convert a JADN Schema into a visual representation, such as MarkDown, HTML, GraphViz or PlantUML. \n\nFirst, load your schema into the schemas directory. \nNext, run the command: \n\npython jadn_cli.py schema_vis <schema_filename> <md, html, gv, or puml>'
+        'Convert a JADN Schema into a visual representation, such as MarkDown, HTML, GraphViz or PlantUML. \n\nFirst, load your schema into the schemas directory, \nnext, run the command: \n\npython jadn_cli.py schema_vis <schema_filename> <md, html, gv, or puml>'
 
         if isinstance(args, str):
             args = args.strip().split()
