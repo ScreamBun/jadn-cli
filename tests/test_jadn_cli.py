@@ -1,9 +1,99 @@
-import cmd
 import sys
 import os
 import glob
 from jadn_cli import JadnCLI
-from src.utils.consts import OUTPUT_DIR_PATH
+from src.utils.consts import OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH
+
+from jadn2 import JADN, add_methods
+from jadn2.config import style_args, style_fname
+from jadn2.convert import jidl_rw, xasd_rw, md_rw, erd_w
+from jadn2.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw
+
+from src.utils.file_utils import get_filepath
+
+add_methods(jidl_rw)  
+add_methods(xasd_rw)
+add_methods(md_rw)
+add_methods(erd_w)
+add_methods(jschema_rw)
+add_methods(xsd_rw) 
+add_methods(cddl_rw)
+add_methods(proto_rw)
+add_methods(xeto_rw)
+
+
+def test_jadn2_functions():
+    assert JADN is not None, "JADN import failed"
+    assert style_args is not None, "style_args import failed"
+    assert style_fname is not None, "style_fname import failed"
+
+    # Check if the methods are added correctly
+    assert hasattr(JADN, 'cddl_dump'), "cddl_dump method not added to JADN"
+    assert hasattr(JADN, 'cddl_dumps'), "cddl_dumps method not added to JADN"
+    assert hasattr(JADN, 'cddl_load'), "cddl_load method not added to JADN"
+    assert hasattr(JADN, 'cddl_loads'), "cddl_loads method not added to JADN"
+    assert hasattr(JADN, 'cddl_style'), "cddl_style method not added to JADN"
+    assert hasattr(JADN, 'erd_dump'), "erd_dump method not added to JADN"
+    assert hasattr(JADN, 'erd_dumps'), "erd_dumps method not added to JADN"
+    assert hasattr(JADN, 'erd_style'), "erd_style method not added to JADN" 
+    assert hasattr(JADN, 'jadn_dump'), "jadn_dump method not added to JADN"
+    assert hasattr(JADN, 'jadn_dumps'), "jadn_dumps method not added to JADN"
+    assert hasattr(JADN, 'jadn_load'), "jadn_load method not added to JADN"
+    assert hasattr(JADN, 'jadn_loads'), "jadn_loads method not added to JADN"
+    assert hasattr(JADN, 'jadn_style'), "jadn_style method not added to JADN"       
+    assert hasattr(JADN, 'jidl_dump'), "jidl_dump method not added to JADN"
+    assert hasattr(JADN, 'jidl_dumps'), "jidl_dumps method not added to JADN"
+    assert hasattr(JADN, 'jidl_load'), "jidl_load method not added to JADN"
+    assert hasattr(JADN, 'jidl_loads'), "jidl_loads method not added to JADN"
+    assert hasattr(JADN, 'jidl_style'), "jidl_style method not added to JADN"
+    assert hasattr(JADN, 'jschema_dump'), "jschema_dump method not added to JADN"
+    assert hasattr(JADN, 'jschema_dumps'), "jschema_dumps method not added to JADN"
+    assert hasattr(JADN, 'jschema_load'), "jschema_load method not added to JADN"
+    assert hasattr(JADN, 'jschema_loads'), "jschema_loads method not added to JADN"
+    assert hasattr(JADN, 'jschema_style'), "jschema_style method not added to JADN"
+    assert hasattr(JADN, 'md_dump'), "md_dump method not added to JADN"
+    assert hasattr(JADN, 'md_dumps'), "md_dumps method not added to JADN"
+    assert hasattr(JADN, 'md_load'), "md_load method not added to JADN"
+    assert hasattr(JADN, 'md_loads'), "md_loads method not added to JADN"
+    assert hasattr(JADN, 'md_style'), "md_style method not added to JADN"
+    assert hasattr(JADN, 'proto_dump'), "proto_dump method not added to JADN"
+    assert hasattr(JADN, 'proto_dumps'), "proto_dumps method not added to JADN"
+    assert hasattr(JADN, 'proto_load'), "proto_load method not added to JADN"
+    assert hasattr(JADN, 'proto_loads'), "proto_loads method not added to JADN"
+    assert hasattr(JADN, 'proto_style'), "proto_style method not added to JADN"
+    assert hasattr(JADN, 'xasd_dump'), "xasd_dump method not added to JADN"
+    assert hasattr(JADN, 'xasd_dumps'), "xasd_dumps method not added to JADN"
+    assert hasattr(JADN, 'xasd_load'), "xasd_load method not added to JADN"
+    assert hasattr(JADN, 'xasd_loads'), "xasd_loads method not added to JADN"
+    assert hasattr(JADN, 'xasd_style'), "xasd_style method not added to JADN"
+    assert hasattr(JADN, 'xeto_dump'), "xeto_dump method not added to JADN"
+    assert hasattr(JADN, 'xeto_dumps'), "xeto_dumps method not added to JADN"
+    assert hasattr(JADN, 'xeto_load'), "xeto_load method not added to JADN"
+    assert hasattr(JADN, 'xeto_loads'), "xeto_loads method not added to JADN"
+    assert hasattr(JADN, 'xeto_style'), "xeto_style method not added to JADN"
+    assert hasattr(JADN, 'xsd_dump'), "xsd_dump method not added to JADN"
+    assert hasattr(JADN, 'xsd_dumps'), "xsd_dumps method not added to JADN"
+    assert hasattr(JADN, 'xsd_load'), "xsd_load method not added to JADN"
+    assert hasattr(JADN, 'xsd_loads'), "xsd_loads method not added to JADN"
+    assert hasattr(JADN, 'xsd_style'), "xsd_style method not added to JADN"
+    
+    
+def test_jadn2_jidl_dumps():
+    schema_filename = "music-database.jadn"
+    try:
+        j_pkg = JADN()
+        path = get_filepath(SCHEMAS_DIR_PATH, schema_filename)
+        
+        with open(path, 'r', encoding='utf-8') as fp:
+            j_pkg.jadn_load(fp)
+
+        style: dict = None
+        jidl_text = j_pkg.jidl_dumps(style)
+    except Exception as e:
+        print(f"Error during JADN initialization: {e}")
+    
+    assert jidl_text is not None, "JIDL Generation failed or returned None"
+
 
 ############# TESTING COMMAND: help #############
 def test_do_help(): 

@@ -289,14 +289,14 @@ files = [
 
 [[package]]
 name = "jadn"
-version = "0.7.4"
+version = "0.7.5"
 description = "JADN schema tools"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "jadn-0.7.4-py2.py3-none-any.whl", hash = "sha256:9af68edc48c566f9b87cde1bf693daaef73b5a1d337f698cd7089fcd0bbcf480"},
-    {file = "jadn-0.7.4.tar.gz", hash = "sha256:db1242283fecd5261cbb245bde6dc195174c15e21f5ae2217396cfd89f205340"},
+    {file = "jadn-0.7.5-py2.py3-none-any.whl", hash = "sha256:04df399b3e66c9c8a7bb2bb8212124c8f4d92372146a1778baaf3a4d0522f489"},
+    {file = "jadn-0.7.5.tar.gz", hash = "sha256:5a5e0c4cf2fddea9e213e9bea86593180113c0bba0ae277a07ace2e31b9b2ad0"},
 ]
 
 [package.dependencies]
@@ -304,6 +304,25 @@ frozendict = "*"
 jsonschema = "*"
 lxml = "*"
 rfc3987 = "*"
+
+[[package]]
+name = "jadn2"
+version = "0.0.0"
+description = ""
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "jadn2-0.0.0-py2.py3-none-any.whl", hash = "sha256:437ba4daf5d9fb0d9798c50717a5241041a7e5f091d612cae758a092132f9274"},
+]
+
+[package.dependencies]
+jsonschema = "*"
+lxml = "*"
+
+[package.source]
+type = "file"
+url = "whls/jadn2-0.0.0-py2.py3-none-any.whl"
 
 [[package]]
 name = "jadncbor"
@@ -326,13 +345,13 @@ resolved_reference = "28bc45f7cb52241f8aaea2c5e823aefab72e90f5"
 
 [[package]]
 name = "jadnschema"
-version = "0.3.0"
+version = "0.4.0"
 description = "JADN Schema Translator & Validator"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "jadnschema-0.3.0-py2.py3-none-any.whl", hash = "sha256:89738e242a0b93324cc22af6774ba2ce2d91ab9acc68c2e0f3e751cef4824448"},
+    {file = "jadnschema-0.4.0-py2.py3-none-any.whl", hash = "sha256:e4584ed34dbbda58cf15f7b4228d94a4229624b7ed6fe38d23133ad22b395a05"},
 ]
 
 [package.dependencies]
@@ -342,7 +361,7 @@ edn_format = "0.7.5"
 graphviz = "0.20.3"
 idna = "3.7"
 inflect = "6.2.0"
-jadn = "0.7.4"
+jadn = "0.7.5"
 jsonpointer = "2.4"
 jsonschema = "4.23.0"
 lxml = "4.9.4"
@@ -363,7 +382,7 @@ xmltodict = "0.13.0"
 
 [package.source]
 type = "file"
-url = "whls/jadnschema-0.3.0-py2.py3-none-any.whl"
+url = "whls/jadnschema-0.4.0-py2.py3-none-any.whl"
 
 [[package]]
 name = "jadnvalidation"
@@ -1404,4 +1423,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "923d8149cd1a3a32362265fa884a45ef497122287289b28b0263775c2eca9d88"
+content-hash = "477f93dec15203d877fa931d85486b4f81152fcada17b3708c6ce11060fe7e72"

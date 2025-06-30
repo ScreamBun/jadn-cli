@@ -13,9 +13,10 @@ dependencies = [
     "pandas (>=2.2.3,<3.0.0)",
     "texttable (>=1.7.0,<2.0.0)",
     "pytest (>=8.3.5,<9.0.0)",
-    "jadnschema @ ./whls/jadnschema-0.3.0-py2.py3-none-any.whl",
+    "jadnschema @ file:///home/matt/workspace/jadn-cli/whls/jadnschema-0.4.0-py2.py3-none-any.whl",
     "jadnvalidation @ ./whls/jadnvalidation-1.1.0-py2.py3-none-any.whl",
     "jadnxml @ ./whls/jadnxml-1.11.0-py2.py3-none-any.whl",
+    "jadn2 @ file:///home/matt/workspace/jadn-cli/whls/jadn2-0.0.0-py2.py3-none-any.whl",
 ]
 
 [tool.poetry]
