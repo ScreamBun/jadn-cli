@@ -1,3 +1,4 @@
+import json
 import jadnvalidation
 
 from src.utils.consts import DATA_DIR_PATH, VALID_DATA_FORMATS
@@ -37,6 +38,12 @@ class CliDataValidation():
         
         data = file_data[self.data_filename]
         if(isinstance(data, str)):
+            
+            try:
+                data = json.loads(data)
+            except Exception as e:
+                raise ValueError(f"Failed to parse data as JSON: {e}")            
+            
             for root_item in roots:
                 try :
                     j_validation = jadnvalidation.DataValidation(schema_data, root_item, data, file_format)
