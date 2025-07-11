@@ -6,6 +6,7 @@
   "description": "This information model defines a library of audio tracks, organized by album, with associated metadata regarding each track. It is modeled on the types of library data maintained by common websites and music file tag editors.",
   "license": "CC0-1.0",
   "$ref": "#/definitions/Library",
+  "properties": {},
   "definitions": {
     "Library": {
       "title": "Library",

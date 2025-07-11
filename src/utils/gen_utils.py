@@ -38,7 +38,7 @@ def get_schema_roots(schema_data):
 
     roots = get_nested_value(schema_data, ['info', 'exports'], None)
     if roots is None:
-        roots = get_nested_value(schema_data, ['info', 'roots'], None)
+        roots = get_nested_value(schema_data, ['meta', 'roots'], None)
     
     return roots
 
