@@ -23,7 +23,7 @@ class CliSchemaValidation():
                 schema_str = file_data[self.schema_filename]
                 schema_data = json.loads(schema_str) # Ensure it's a valid JSON string
                 # TODO: Add schema validation check here when ready from jadn2 or sb jadn validation
-                # jadn.check(schema_data) # Ensure it's a valid JADN schema
+                jadn.check(schema_data) # Ensure it's a valid JADN schema
             except Exception as e:
                 raise ValueError(f"Schema Invalid - {e}")
         else:
