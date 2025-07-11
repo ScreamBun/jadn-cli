@@ -1,9 +1,9 @@
 # See pyproject.toml for the full list of dependencies.
 
-./whls/jadnschema-0.4.0-py2.py3-none-any.whl
+./whls/jadnschema-0.5.0-py2.py3-none-any.whl
 ./whls/jadnxml-1.11.0-py2.py3-none-any.whl
 # ./whls/jadnjson-1.4.0-py2.py3-none-any.whl
-./whls/jadnvalidation-1.1.0-py2.py3-none-any.whl
+./whls/jadnvalidation-1.2.0-py2.py3-none-any.whl
 ./whls/jadn2-0.0.0-py2.py3-none-any.whl
 
 jadn==0.7.5
