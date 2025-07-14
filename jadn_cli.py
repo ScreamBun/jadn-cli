@@ -10,7 +10,7 @@ from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_REV_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
 from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -237,7 +237,7 @@ class JadnCLI(cmd.Cmd):
                 sys.exit(1)                    
         
         if not convert_to:
-            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemsa to: ")
+            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemas to: ")
             if convert_to is None:
                 return
         elif convert_to.isdigit():
@@ -338,7 +338,7 @@ class JadnCLI(cmd.Cmd):
                 sys.exit(1)                    
         
         if not convert_to:
-            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemsa to: ")
+            convert_to = pick_an_option(VALID_REV_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemas to: ")
             if convert_to is None:
                 return
         elif convert_to.isdigit():
