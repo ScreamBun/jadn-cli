@@ -134,6 +134,29 @@ def test_schema_rev_t_jidl():
 
     assert cli.error_list == []
 
+############# TESTING COMMAND: schema_rev_t_bulk <jidl, json, or xsd> #############
+def test_schema_rev_t_bulk_jidl():
+    arg = "jidl"
+
+    cli = JadnCLI()
+    cli.do_clear_log('')
+
+    cli.do_schema_rev_t_bulk(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+def test_schema_rev_t_bulk_json():
+    arg = "json"
+
+    cli = JadnCLI()
+    cli.do_clear_log('')
+
+    cli.do_schema_rev_t_bulk(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
 ############# TESTING COMMAND: schema_t <schema_file> <convert_to> #############
 def test_schema_t_json():
     arg = "music-database.jadn json"
@@ -167,6 +190,41 @@ def test_schema_t_xsd():
     cli.do_err_report_gen('')
     
     assert cli.error_list == []
+
+############# TESTING COMMAND: schema_t_bulk <convert_to> #############
+
+def test_schema_t_bulk_xsd():
+    arg = "xsd"
+
+    cli = JadnCLI()
+    cli.do_clear_log('')
+
+    cli.do_schema_t_bulk(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+def test_schema_t_bulk_jidl():
+    arg = "jidl"
+
+    cli = JadnCLI()
+    cli.do_clear_log('')
+
+    cli.do_schema_t_bulk(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+def test_schema_t_bulk_json():
+    arg = "json"
+
+    cli = JadnCLI()
+    cli.do_clear_log('')
+
+    cli.do_schema_t_bulk(arg)
+    cli.do_err_report_gen('')
+
+    assert len(cli.error_list) == 1 #invalid schema
 
 ############# TESTING COMMAND: schema_vis <schema_file> <convert_to> #############
 def test_schema_vis_md():

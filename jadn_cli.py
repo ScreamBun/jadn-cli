@@ -219,7 +219,56 @@ class JadnCLI(cmd.Cmd):
             print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
+
+    def do_schema_t_bulk(self, args):
+        'Translate all JADN Schemas to JIDL, JSON Schemas or XSD. \n\nFirst, load your schemas into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_t_bulk <jidl, json, or xsd>'
+
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        convert_to = args[0] if len(args) > 0 else None
+
+        schema_map = {} 
+
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not convert_to:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_t_bulk <convert_to>'")
+                sys.exit(1)                    
+        
+        if not convert_to:
+            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemsa to: ")
+            if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_t(args = [])
+                return
+
+        directory = SCHEMAS_DIR_PATH
+        extension = JADN_SCHEMA_FILE_EXT
+
+        for schema_filename in os.listdir(directory):
+            if schema_filename.endswith(extension):
+                try:
+                    schema_conversion = CliSchemaConversion(schema_filename, convert_to)
+                    schema_converted = schema_conversion.convert()
+                    
+                    if schema_converted:
+                        print(f' - Schema {schema_filename} has been converted to {convert_to}.')
+                        new_filename = update_file_extension(schema_filename, convert_to)
+                        write_to_output(new_filename, schema_converted)
+                    else: 
+                        print(f' - Schema {schema_filename} could not be converted to {convert_to}.')
             
+                except Exception as e:
+                    print(f' - An error occurred while converting {schema_filename} to {convert_to}: {e}')
+                    logging.error(f"An error occurred: {str(e)}", exc_info=True)
+                    self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
+                    
     def do_schema_rev_t(self, args):
         'Reverse translate JIDL or JSON Schema into a JADN Schema. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_rev_t <schema_filename>'
 
@@ -270,7 +319,56 @@ class JadnCLI(cmd.Cmd):
         except Exception as e:
             print(f'  - An error occurred while reverse translating {filename} to {JADN_SCHEMA_FILE_EXT}: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
-            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})            
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})  
+
+    def do_schema_rev_t_bulk(self, args):
+        'Reverse translate all JIDL or JSON Schemas into a JADN Schema. \n\nFirst, load your schema into the data directory, \nnext run the command: \n\npython jadn_cli.py schema_rev_t <jidl, json>'
+
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        convert_to = args[0] if len(args) > 0 else None
+
+        schema_map = {} 
+
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not convert_to:
+                print("Error: Commands missing. Use 'python jadn_cli.py schema_rev_t_bulk <convert_to>'")
+                sys.exit(1)                    
+        
+        if not convert_to:
+            convert_to = pick_an_option(VALID_SCHEMA_FORMATS, opts_title="Schema Formats:", prompt="Enter a format to convert the schemsa to: ")
+            if convert_to is None:
+                return
+        elif convert_to.isdigit():
+            try:
+                convert_to = VALID_SCHEMA_FORMATS[int(convert_to) - 1]
+            except IndexError:
+                print(f"Invalid format number: {convert_to}")
+                self.do_schema_t(args = [])
+                return
+
+        directory = SCHEMAS_DIR_PATH
+        extension = f'.{convert_to}'
+
+        for schema_filename in os.listdir(directory):
+            if schema_filename.endswith(extension):
+                try:
+                    rev_translate = SchemaReverseTranslate(schema_filename)
+                    file_translated = rev_translate.translate()
+                    
+                    if file_translated:
+                        print(f'  - {schema_filename} has been reverse translated into a JADN Schema.')
+                        new_filename = update_file_extension(schema_filename, JADN_SCHEMA_FILE_EXT)
+                        write_to_output(new_filename, file_translated)
+                    else: 
+                        print(f'  - {schema_filename} could not be reverse translated into a JADN Schema.')
+
+                except Exception as e:
+                    print(f'  - An error occurred while reverse translating {schema_filename} to {JADN_SCHEMA_FILE_EXT}: {e}')
+                    logging.error(f"An error occurred: {str(e)}", exc_info=True)
+                    self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})       
             
     def do_schema_vis(self, args):
         'Convert a JADN Schema into a visual representation, such as MarkDown, HTML, GraphViz or PlantUML. \n\nFirst, load your schema into the schemas directory, \nnext, run the command: \n\npython jadn_cli.py schema_vis <schema_filename> <md, html, gv, or puml>'
