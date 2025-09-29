@@ -1,7 +1,7 @@
 import json
 import jadn
 
-from jadnxml.builder.xsd_builder import convert_xsd_from_dict
+from jadnxml.builder.xsd_builder import XSDBuilder
 from jadnutils.html.html_converter import HtmlConverter
 from src.utils.consts import GV_FILE_EXT, HTML_FILE_EXT, JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, PLANT_UML_FILE_EXT, SCHEMAS_DIR_PATH, XSD_FILE_EXT
 from src.utils.file_utils import get_file
@@ -59,7 +59,8 @@ class CliSchemaConversion():
                 converted_schema = jadn.convert.diagram_dumps(schema_data, puml_style)
                 
             elif self.convert_to == XSD_FILE_EXT:
-                result = convert_xsd_from_dict(schema_data)
+                xsd_builder = XSDBuilder()
+                result = xsd_builder.convert_xsd_from_dict(schema_data)
                 if result and isinstance(result, tuple):
                     converted_schema = result[0]
                 
