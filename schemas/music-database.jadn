@@ -12,7 +12,7 @@
     ["Barcode", "String", ["%^\\d{12}$"], "A UPC-A barcode is 12 digits", []],
     ["Album", "Record", [], "model for the album", [
         [1, "album_artist", "Artist", [], "primary artist associated with this album"],
-        [2, "album_title", "String", [], "publisher's title for this album"],
+        [2, "album_title", "String", ["/attr"], "publisher's title for this album"],
         [3, "pub_data", "Publication-Data", [], "metadata about the album's publication"],
         [4, "tracks", "Track", ["]0"], "individual track descriptions and content"],
         [5, "total_tracks", "Integer", ["w1"], "total track count"],
