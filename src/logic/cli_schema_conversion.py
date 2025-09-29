@@ -1,10 +1,10 @@
 import json
 import jadn
 
-from jadnschema.convert import dumps
 from jadnxml.builder.xsd_builder import convert_xsd_from_dict
-from src.utils.consts import CSS_DIR_PATH, GV_FILE_EXT, HTML_FILE_EXT, JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, PLANT_UML_FILE_EXT, SCHEMA_CSS_FILE_NAME, SCHEMAS_DIR_PATH, XSD_FILE_EXT
-from src.utils.file_utils import get_file, get_filepath
+from jadnutils.html.html_converter import HtmlConverter
+from src.utils.consts import GV_FILE_EXT, HTML_FILE_EXT, JIDL_FILE_EXT, JSON_FILE_EXT, MARKDOWN_FILE_EXT, PLANT_UML_FILE_EXT, SCHEMAS_DIR_PATH, XSD_FILE_EXT
+from src.utils.file_utils import get_file
 
 class CliSchemaConversion():
     
@@ -37,13 +37,8 @@ class CliSchemaConversion():
                 converted_schema = jadn.convert.diagram_dumps(schema_data, gv_style)
             
             elif self.convert_to == HTML_FILE_EXT:
-                kwargs = { "fmt": self.convert_to }
-                kwargs["styles"] = get_filepath(CSS_DIR_PATH, SCHEMA_CSS_FILE_NAME)
-                converted_schema = dumps(schema_data, **kwargs)
-            
-                # TODO: Does JADN not have an html converter?
-                # html_style = jadn.convert.html5()
-                # converted_schema = jadn.convert.html5_dumps(schema_data, html_style)        
+                converter = HtmlConverter(schema_data)
+                converted_schema = converter.jadn_to_html(run_validation=False)    
             
             elif self.convert_to == JSON_FILE_EXT:
                 converted_schema = jadn.translate.json_schema_dumps(schema_data)
