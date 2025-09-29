@@ -1,0 +1,239 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jadn="jadn_base_types">
+	<xs:import
+        schemaLocation="https://raw.githubusercontent.com/ScreamBun/sb-jadn-xml-util/refs/heads/main/_data/xsd/jadn_base_types.xsd"
+        namespace="jadn_base_types" />
+	<xs:complexType name="Library">
+		<xs:annotation>
+			<xs:documentation>Top level of the library is a map of CDs by barcode</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="library_map" name="library_map" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element id="library_map_barcode" name="Barcode" />
+						<xs:element id="library_map_album" name="Album" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="Barcode">
+		<xs:annotation>
+			<xs:documentation>A UPC-A barcode is 12 digits</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="jadn:String">
+			<xs:pattern value="^\d{12}$" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Album">
+		<xs:annotation>
+			<xs:documentation>model for the album</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="album_album_artist" name="album_artist" type="Artist">
+				<xs:annotation>
+					<xs:documentation>primary artist associated with this album</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="album_album_title" name="album_title" type="jadn:String">
+				<xs:annotation>
+					<xs:documentation>publisher's title for this album</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="album_pub_data" name="pub_data" type="Publication-Data">
+				<xs:annotation>
+					<xs:documentation>metadata about the album's publication</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="album_tracks" name="tracks" type="Track" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>individual track descriptions and content</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="album_total_tracks" name="total_tracks" type="jadn:Integer">
+				<xs:annotation>
+					<xs:documentation>total track count</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="album_cover_art" name="cover_art" type="Image" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>cover art image for this album</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Publication-Data">
+		<xs:annotation>
+			<xs:documentation>who and when of publication</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="publication_data_publisher" name="publisher" type="jadn:String">
+				<xs:annotation>
+					<xs:documentation>record label that released this album</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="publication_data_release_date" name="release_date">
+				<xs:annotation>
+					<xs:documentation>and when did they let this drop</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="jadn:date">
+						<xs:annotation>
+							<xs:documentation>JSON Schema Section 7.3.1</xs:documentation>
+						</xs:annotation>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Image">
+		<xs:annotation>
+			<xs:documentation>pretty picture for the album or track</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="image_image_format" name="image_format" type="Image-Format">
+				<xs:annotation>
+					<xs:documentation>what type of image file?</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="image_image_content" name="image_content" type="jadn:Binary">
+				<xs:annotation>
+					<xs:documentation>the image data in the identified format</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="Image-Format">
+		<xs:annotation>
+			<xs:documentation>can only be one, but can extend list</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="jadn:String">
+			<xs:enumeration id="image_format_png" value="PNG" />
+			<xs:enumeration id="image_format_jpg" value="JPG" />
+			<xs:enumeration id="image_format_gif" value="GIF" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Artist">
+		<xs:annotation>
+			<xs:documentation>interesting information about a performer</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="artist_artist_name" name="artist_name" type="jadn:String">
+				<xs:annotation>
+					<xs:documentation>who is this person</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="artist_instruments" name="instruments" type="Instrument" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>and what do they play</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="Instrument">
+		<xs:annotation>
+			<xs:documentation>collection of instruments (non-exhaustive)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="jadn:String">
+			<xs:enumeration id="instrument_vocals" value="vocals" />
+			<xs:enumeration id="instrument_guitar" value="guitar" />
+			<xs:enumeration id="instrument_bass" value="bass" />
+			<xs:enumeration id="instrument_drums" value="drums" />
+			<xs:enumeration id="instrument_keyboards" value="keyboards" />
+			<xs:enumeration id="instrument_percussion" value="percussion" />
+			<xs:enumeration id="instrument_brass" value="brass" />
+			<xs:enumeration id="instrument_woodwinds" value="woodwinds" />
+			<xs:enumeration id="instrument_harmonica" value="harmonica" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Track">
+		<xs:annotation>
+			<xs:documentation>for each track there's a file with the audio and a metadata record</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="track_location" name="location" type="File-Path">
+				<xs:annotation>
+					<xs:documentation>path to the audio file location in local storage</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_metadata" name="metadata" type="Track-Info">
+				<xs:annotation>
+					<xs:documentation>description of the track</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Track-Info">
+		<xs:annotation>
+			<xs:documentation>information about the individual audio tracks</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element id="track_info_track_number" name="track_number" type="jadn:Integer">
+				<xs:annotation>
+					<xs:documentation>track sequence number</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_title" name="title" type="jadn:String">
+				<xs:annotation>
+					<xs:documentation>track title</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_length" name="length" type="jadn:Integer">
+				<xs:annotation>
+					<xs:documentation>length of track in seconds; anticipated user display is mm:ss; minimum length is 1 second</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_audio_format" name="audio_format" type="Audio-Format">
+				<xs:annotation>
+					<xs:documentation>format of the digital audio</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_featured_artist" name="featured_artist" type="Artist" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>notable guest performers</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_track_art" name="track_art" type="Image" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>each track can have optionally have individual artwork</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element id="track_info_genre" name="genre" type="Genre" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="Audio-Format">
+		<xs:annotation>
+			<xs:documentation>can only be one, but can extend list</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration id="audio_format_mp3" value="MP3" />
+			<xs:enumeration id="audio_format_ogg" value="OGG" />
+			<xs:enumeration id="audio_format_flac" value="FLAC" />
+			<xs:enumeration id="audio_format_mp4" value="MP4" />
+			<xs:enumeration id="audio_format_aac" value="AAC" />
+			<xs:enumeration id="audio_format_wma" value="WMA" />
+			<xs:enumeration id="audio_format_wav" value="WAV" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Genre">
+		<xs:annotation>
+			<xs:documentation>Enumeration of common genres</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration id="genre_rock" value="rock" />
+			<xs:enumeration id="genre_jazz" value="jazz" />
+			<xs:enumeration id="genre_hip_hop" value="hip_hop" />
+			<xs:enumeration id="genre_electronic" value="electronic" />
+			<xs:enumeration id="genre_folk_country_world" value="folk_country_world" />
+			<xs:enumeration id="genre_classical" value="classical" />
+			<xs:enumeration id="genre_spoken_word" value="spoken_word" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="File-Path">
+		<xs:annotation>
+			<xs:documentation>local storage location of file with directory path from root, filename, and extension</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="jadn:String" />
+	</xs:simpleType>
+	<xs:element id="Library" name="Library" type="Library" />
+</xs:schema>

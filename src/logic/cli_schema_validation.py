@@ -1,5 +1,8 @@
 import json
-import jadn
+
+from jadnvalidation import DataValidation
+from jadnvalidation.data_validation.schemas.jadn_meta_schema import j_meta_schema, j_meta_roots
+
 from src.utils.consts import SCHEMAS_DIR_PATH
 from src.utils.file_utils import get_file
 
@@ -20,10 +23,14 @@ class CliSchemaValidation():
         
         if(isinstance(file_data[self.schema_filename], str)):
             try:
-                schema_str = file_data[self.schema_filename]
-                schema_data = json.loads(schema_str) # Ensure it's a valid JSON string
-                # TODO: Add schema validation check here when ready from jadn2 or sb jadn validation
-                jadn.check(schema_data) # Ensure it's a valid JADN schema
+                schema_data = file_data[self.schema_filename]
+                
+                if isinstance(schema_data, str):
+                    schema_data = json.loads(schema_data)
+                    
+                j_validation = DataValidation(j_meta_schema, j_meta_roots, schema_data)
+                j_validation.validate()                
+                
             except Exception as e:
                 raise ValueError(f"Schema Invalid - {e}")
         else:
