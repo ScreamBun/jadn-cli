@@ -94,7 +94,7 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_c(self, args):
-        'Convert JSON Verbose Data into JSON Concise Data.\n\npython jadn_cli.py data_c <data_filename> [-b --bulk]'
+        'Convert JSON Verbose Data into JSON Concise Data.\n\npython jadn_cli.py data_c [data_filename] [-b --bulk]'
         if isinstance(args, str):
             args = args.strip().split()
 
