@@ -321,6 +321,32 @@ def test_do_v_data_cbor():
     #assert cli.error_list == []  
     assert True # CBOR is invalid   
 
+############# TESTING COMMAND: data_c #############
+def test_do_data_c():
+    arg = "-b"
+    arg2 = "--bulk"
+    arg3 = "music_library.json"
+
+    cli =JadnCLI()
+
+    cli.do_clear_log('')
+    cli.do_data_c(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+    cli.do_clear_log('')
+    cli.do_data_c(arg2)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+    cli.do_clear_log('')
+    cli.do_data_c(arg3)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
 ############# TESTING COMMAND: clear_log #############
 def test_do_clear_log():
     arg = "invalid-music-database.jadn"

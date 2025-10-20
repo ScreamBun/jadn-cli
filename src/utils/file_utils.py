@@ -53,7 +53,7 @@ def file_exists(dirname, filename):
     files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
     return filename in files
 
-def list_files(dir, is_jadn_only=True):
+def list_files(dir, is_jadn_only=True, is_json_only=False):
     """
     List all files (not directories or nested files) in the specified directory, displaying a file number for each.
     """
@@ -64,6 +64,8 @@ def list_files(dir, is_jadn_only=True):
 
     if is_jadn_only:
         files = [f for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
+    elif is_json_only:
+        files = [f for f in glob.glob(os.path.join(dir, "*.json")) if os.path.isfile(f)]
     else:
         files = [f for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
         
@@ -74,7 +76,7 @@ def list_files(dir, is_jadn_only=True):
     else:
         print(f"No files found in the '{dir}' directory.")
 
-def map_files(dir, is_jadn_only=True):
+def map_files(dir, is_jadn_only=True, is_json_only=False):
     """
     Map all files in the specific directory to their file number.
     To allow users to be able to run commands with numbers instead of filenames.
@@ -88,6 +90,8 @@ def map_files(dir, is_jadn_only=True):
 
     if is_jadn_only:
         files = [f for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
+    elif is_json_only:
+        files = [f for f in glob.glob(os.path.join(dir, "*.json")) if os.path.isfile(f)]
     else:
         files = [f for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
 
@@ -147,7 +151,7 @@ def pick_an_option(opts, opts_title="Choose an option:", prompt="Enter an option
             return user_input
         print("Invalid option entered. Please try again or type 'exit' to cancel.")    
 
-def pick_a_file(dir, is_jadn_only=True, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
+def pick_a_file(dir, is_jadn_only=True, is_json_only=False, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
     """
     Prompt the user to pick a file from the specified directory.
     Returns the selected filename or None if cancelled.
@@ -160,6 +164,8 @@ def pick_a_file(dir, is_jadn_only=True, prompt="Enter the file number or filenam
 
     if is_jadn_only:
         files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
+    elif is_json_only:
+        files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.json")) if os.path.isfile(f)]
     else:
         files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
 

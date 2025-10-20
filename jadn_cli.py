@@ -4,6 +4,7 @@ import os
 import sys
 import pandas as pd
 import texttable
+import json
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
@@ -92,6 +93,58 @@ class JadnCLI(cmd.Cmd):
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
+    def do_data_c(self, args):
+        'Convert JSON Verbose Data into JSON Concise Data.\n\npython jadn_cli.py data_c <data_filename> [-b --bulk]'
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        data_filename = args[0] if len(args) > 0 else None
+        bulk = data_filename == '-b' or data_filename == '--bulk'
+
+        data_map = {}
+
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not data_filename and not bulk:
+                print("Error: Commands missing. Use 'python jadn_cli.py data_c <data_filename.json>'")
+                sys.exit(1)
+        
+        if not data_filename and not bulk:
+            list_files(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True)
+            data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
+        elif data_filename.isdigit() and not bulk:
+            data_map = map_files(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True)
+            try:
+                data_filename = data_map[int(data_filename)].split('/')[-1]
+            except:
+                print(f"Data {data_filename} not found.")
+                self.do_data_c(args = [])
+                return
+
+        try:
+            if bulk:
+                directory = DATA_DIR_PATH
+                extension = '.json'
+
+                for data_filename in os.listdir(directory):
+                    if data_filename.endswith(extension):
+                        read_data = json.loads(open(os.path.join(DATA_DIR_PATH, data_filename), 'r').read())
+                        concise_data = json.dumps(read_data)
+                        new_filename = update_file_extension(data_filename, 'json')
+                        write_to_output(new_filename, concise_data)
+                        print(f' - Data {data_filename} has been converted to concise format.')
+                return
+            else:
+                read_data = json.loads(open(os.path.join(DATA_DIR_PATH, data_filename), 'r').read())
+                concise_data = json.dumps(read_data)
+                new_filename = update_file_extension(data_filename, 'json')
+                write_to_output(new_filename, concise_data)
+                print(f' - Data {data_filename} has been converted to concise format.')
+        except Exception as e:
+            print(f' - An error occurred while converting the data: {e}')
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
+
     def do_data_v(self, args):
         'Validate data against a JADN schema. \n\nFirst, load your schema into the schemas directory, \nnext load your data file to the data directory, and \nthen, run the command: \n\npython jadn_cli.py data_v <schema_filename> <data_filename>'
         
