@@ -552,6 +552,51 @@ class JadnCLI(cmd.Cmd):
         
         print("Cleared error reports.")
 
+    def do_view_file(self, args):
+        'View the contents of a schema or data file.\n\npython jadn_cli.py view_file <filename> [option]\n\nOptions:\n--code: open file in VSCode\n--vim: open file in Vim\n--head: display first 10 lines\n--tail: display last 10 lines'
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        filename = args[0] if len(args) > 0 else None
+        option = args[1] if len(args) > 1 else None
+        files_map = {}
+
+        use_prompts = get_config_value("use_prompts", True)
+        if not use_prompts: 
+            if not filename:
+                print("Error: Commands missing. Use 'python jadn_cli.py view_file <filename> [option]'")
+                sys.exit(1)
+
+        try: 
+            if not filename:
+                list1 = list_files(SCHEMAS_DIR_PATH, is_jadn_only=False, join_list=[])
+                list2 = list_files(DATA_DIR_PATH, is_jadn_only=False, join_list=list1)
+                filename = pick_a_file('.', fromArray=list2, is_jadn_only=False, is_json_only=False, prompt="Enter a number or filename to view (or type 'exit' to cancel): ")
+
+            if not option:
+                option = pick_an_option(['None', '--code', '--vim', '--head', '--tail'], opts_title="View Options:", prompt="Enter an option to view the file (default = cat): ")
+            
+            if option == '--code':
+                os.system('code ' + filename)
+            elif option == '--vim':
+                os.system('vim ' + filename)
+            elif option == '--head':
+                os.system('head -n 10 ' + filename)
+                print("\n")
+            elif option == '--tail':
+                os.system('tail -n 10 ' + filename)
+                print("\n")
+            else:
+                os.system('cat ' + filename)
+                print("\n")
+
+        except Exception as e:
+            print(f"An error occurred while trying to view the file: {e}")
+            logging.error(f"An error occurred: {str(e)}", exc_info=True)
+            self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
+        
+        return
+
     def do_man(self, arg):
         """List available commands in a table."""
         self.do_help(arg)
