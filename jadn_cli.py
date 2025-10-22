@@ -572,6 +572,14 @@ class JadnCLI(cmd.Cmd):
                 list1 = list_files(SCHEMAS_DIR_PATH, is_jadn_only=False, join_list=[])
                 list2 = list_files(DATA_DIR_PATH, is_jadn_only=False, join_list=list1)
                 filename = pick_a_file('.', fromArray=list2, is_jadn_only=False, is_json_only=False, prompt="Enter a number or filename to view (or type 'exit' to cancel): ")
+            else:
+                if file_exists(SCHEMAS_DIR_PATH, filename):
+                    filename = os.path.join(SCHEMAS_DIR_PATH, filename)
+                elif file_exists(DATA_DIR_PATH, filename):
+                    filename = os.path.join(DATA_DIR_PATH, filename)
+                else:
+                    print(f"File {filename} not found in schemas or data directories.")
+                    return
 
             if not option:
                 option = pick_an_option(['None', '--code', '--vim', '--head', '--tail'], opts_title="View Options:", prompt="Enter an option to view the file (default = cat): ")
