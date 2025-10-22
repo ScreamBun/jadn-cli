@@ -553,7 +553,7 @@ class JadnCLI(cmd.Cmd):
         print("Cleared error reports.")
 
     def do_view_file(self, args):
-        'View the contents of a schema or data file.\n\npython jadn_cli.py view_file <filename> [option]\n\nOptions:\n--code: open file in VSCode\n--vim: open file in Vim\n--head: display first 10 lines\n--tail: display last 10 lines'
+        'View the contents of a schema or data file. Default method is \"cat filename\"\n\npython jadn_cli.py view_file <filename> [option]\n\nOptions:\n--code: open file in VSCode\n--vim: open file in Vim\n--head: display first 10 lines\n--tail: display last 10 lines'
         if isinstance(args, str):
             args = args.strip().split()
 
