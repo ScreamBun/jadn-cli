@@ -27,8 +27,8 @@ class CliDataConversion():
             if self.convert_to == COMPACT_CONST:
                 converted_data = convert_to_compact(data_data)
             
-            elif self.convert_to == JSON_FILE_EXT:
-                pass
+            elif self.convert_to == CONCISE_CONST:
+                pass #TODO
                 
         except Exception as e:
             raise ValueError(f"Data Invalid - {e}")
