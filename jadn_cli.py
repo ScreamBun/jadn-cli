@@ -8,7 +8,7 @@ import json
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
-from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
+from src.utils.file_utils import map_files, map_schema_and_data_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
 from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_REV_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
@@ -558,6 +558,7 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         filename = args[0] if len(args) > 0 else None
+        prompt_option = filename is None
         option = args[1] if len(args) > 1 else None
         files_map = {}
 
@@ -572,6 +573,14 @@ class JadnCLI(cmd.Cmd):
                 list1 = list_files(SCHEMAS_DIR_PATH, is_jadn_only=False, join_list=[])
                 list2 = list_files(DATA_DIR_PATH, is_jadn_only=False, join_list=list1)
                 filename = pick_a_file('.', fromArray=list2, is_jadn_only=False, is_json_only=False, prompt="Enter a number or filename to view (or type 'exit' to cancel): ")
+            elif filename.isdigit():
+                files_map = map_schema_and_data_files(SCHEMAS_DIR_PATH, DATA_DIR_PATH)
+                try:
+                    filename = files_map[int(filename)]
+                except:
+                    print(f"File {filename} not found.")
+                    self.do_view_file(args = [])
+                    return
             else:
                 if file_exists(SCHEMAS_DIR_PATH, filename):
                     filename = os.path.join(SCHEMAS_DIR_PATH, filename)
@@ -580,8 +589,11 @@ class JadnCLI(cmd.Cmd):
                 else:
                     print(f"File {filename} not found in schemas or data directories.")
                     return
+            
+            if not filename:
+                return
 
-            if not option:
+            if not option and prompt_option: #only ask for flag if going through manual prompts
                 option = pick_an_option(['None', '--code', '--vim', '--head', '--tail'], opts_title="View Options:", prompt="Enter an option to view the file (default = cat): ")
             
             if option == '--code':
