@@ -5,7 +5,7 @@
 # ./whls/jadnjson-1.4.0-py2.py3-none-any.whl
 ./whls/jadnvalidation-2.1.0-py2.py3-none-any.whl
 ./whls/jadn2-0.0.0-py2.py3-none-any.whl
-./whls/jadnutils-0.1.0-py2.py3-none-any.whl
+./whls/jadnutils-0.2.0-py2.py3-none-any.whl
 
 jadn==0.7.5
 # jadn==0.7.4

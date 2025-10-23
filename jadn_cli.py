@@ -11,7 +11,8 @@ from src.utils.config import get_config_value
 from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
-from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_REV_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT
+from src.logic.cli_data_conversion import CliDataConversion
+from src.utils.consts import DATA_DIR_PATH, JADN_SCHEMA_FILE_EXT, OUTPUT_DIR_PATH, SCHEMAS_DIR_PATH, VALID_SCHEMA_FORMATS, VALID_REV_SCHEMA_FORMATS, VALID_SCHEMA_VIS_FORMATS, VALID_SCHEMA_VIS_OPTIONS, GV_FILE_EXT, PLANT_UML_FILE_EXT, COMPACT_CONST, CONCISE_CONST
 from src.logic.cli_schema_conversion import CliSchemaConversion
 
 class JadnCLI(cmd.Cmd):
@@ -94,19 +95,21 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_c(self, args):
-        'Convert JSON Verbose Data into JSON Concise Data.\n\npython jadn_cli.py data_c [data_filename] [-b --bulk]'
+        'Convert JSON Verbose Data into JSON Compact or Concise Data.\n\npython jadn_cli.py data_c [data_filename] [option]\n\nOptions:\n--compact: Convert to JSON Compact\n--concise: Convert to JSON Concise\n--bulk: Convert all JSON Verbose data files.'
         if isinstance(args, str):
             args = args.strip().split()
 
         data_filename = args[0] if len(args) > 0 else None
-        bulk = data_filename == '-b' or data_filename == '--bulk'
+        bulk = '--bulk' in args
+        compact = '--compact' in args
+        concise = '--concise' in args
 
         data_map = {}
 
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
-            if not data_filename and not bulk:
-                print("Error: Commands missing. Use 'python jadn_cli.py data_c <data_filename.json>'")
+            if not data_filename and not bulk or (not compact and not concise):
+                print("Error: Commands missing. Use 'python jadn_cli.py data_c [data_filename] [option]'")
                 sys.exit(1)
         
         if not data_filename and not bulk:
@@ -121,25 +124,32 @@ class JadnCLI(cmd.Cmd):
                 self.do_data_c(args = [])
                 return
 
+        if not compact and not concise:
+            option = pick_an_option([COMPACT_CONST, CONCISE_CONST], opts_title="Conversion Options:", prompt="Enter an option for the data conversion: ")
+            if option is None:
+                return
+            compact = option == COMPACT_CONST
+            concise = option == CONCISE_CONST
+
         try:
+            compact_or_concise = COMPACT_CONST if compact else CONCISE_CONST
             if bulk:
                 directory = DATA_DIR_PATH
                 extension = '.json'
-
                 for data_filename in os.listdir(directory):
                     if data_filename.endswith(extension):
-                        read_data = json.loads(open(os.path.join(DATA_DIR_PATH, data_filename), 'r').read())
-                        concise_data = json.dumps(read_data)
+                        converter = CliDataConversion(data_filename, convert_to=compact_or_concise)
+                        new_data = converter.convert()
                         new_filename = update_file_extension(data_filename, 'json')
-                        write_to_output(new_filename, concise_data)
-                        print(f' - Data {data_filename} has been converted to concise format.')
+                        write_to_output(new_filename, new_data)
+                        print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
                 return
             else:
-                read_data = json.loads(open(os.path.join(DATA_DIR_PATH, data_filename), 'r').read())
-                concise_data = json.dumps(read_data)
+                converter = CliDataConversion(data_filename, convert_to=compact_or_concise)
+                new_data = converter.convert()
                 new_filename = update_file_extension(data_filename, 'json')
-                write_to_output(new_filename, concise_data)
-                print(f' - Data {data_filename} has been converted to concise format.')
+                write_to_output(new_filename, new_data)
+                print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
         except Exception as e:
             print(f' - An error occurred while converting the data: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
