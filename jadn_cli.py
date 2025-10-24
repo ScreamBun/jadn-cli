@@ -95,24 +95,37 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_c(self, args):
-        'Convert JSON Verbose Data into JSON Compact or Concise Data.\n\npython jadn_cli.py data_c [data_filename] [option]\n\nOptions:\n--compact: Convert to JSON Compact\n--concise: Convert to JSON Concise\n--bulk: Convert all JSON Verbose data files.'
+        'Convert JSON Verbose Data into JSON Compact or Concise Data.\n\npython jadn_cli.py data_c <schema_filename> <data_filename> [option]\n\nOptions:\n--compact: Convert to JSON Compact\n--concise: Convert to JSON Concise'
         if isinstance(args, str):
             args = args.strip().split()
 
-        data_filename = args[0] if len(args) > 0 else None
-        bulk = '--bulk' in args
-        compact = '--compact' in args
-        concise = '--concise' in args
+        schema_filename = args[0] if len(args) > 0 else None
+        data_filename = args[1] if len(args) > 1 else None
+        opt = args[2] if len(args) > 2 else None
+        compact = '--compact' == opt
+        concise = '--concise' == opt
 
         data_map = {}
 
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
-            if not data_filename and not bulk or (not compact and not concise):
-                print("Error: Commands missing. Use 'python jadn_cli.py data_c [data_filename] [option]'")
+            if not schema_filename or not data_filename or (not compact and not concise):
+                print("Error: Commands missing. Use 'python jadn_cli.py data_c <schema_filename> <data_filename> [option]'")
                 sys.exit(1)
         
-        if not data_filename and not bulk:
+        if not schema_filename:
+            list_files(SCHEMAS_DIR_PATH)
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
+        elif schema_filename.isdigit():
+            schema_map = map_files(SCHEMAS_DIR_PATH) 
+            try:     
+                schema_filename = schema_map[int(schema_filename)].split('/')[-1]
+            except:
+                print(f"Schema {schema_filename} not found.")
+                self.do_data_c(args = [])
+                return
+
+        if not data_filename:
             list_files(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True)
             data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
         elif data_filename.isdigit() and not bulk:
@@ -133,23 +146,11 @@ class JadnCLI(cmd.Cmd):
 
         try:
             compact_or_concise = COMPACT_CONST if compact else CONCISE_CONST
-            if bulk:
-                directory = DATA_DIR_PATH
-                extension = '.json'
-                for data_filename in os.listdir(directory):
-                    if data_filename.endswith(extension):
-                        converter = CliDataConversion(data_filename, convert_to=compact_or_concise)
-                        new_data = converter.convert()
-                        new_filename = update_file_extension(data_filename, 'json')
-                        write_to_output(new_filename, new_data)
-                        print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
-                return
-            else:
-                converter = CliDataConversion(data_filename, convert_to=compact_or_concise)
-                new_data = converter.convert()
-                new_filename = update_file_extension(data_filename, 'json')
-                write_to_output(new_filename, new_data)
-                print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
+            converter = CliDataConversion(schema_filename, data_filename, convert_to=compact_or_concise)
+            new_data = converter.convert()
+            new_filename = update_file_extension(data_filename, 'json')
+            write_to_output(new_filename, new_data)
+            print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
         except Exception as e:
             print(f' - An error occurred while converting the data: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)

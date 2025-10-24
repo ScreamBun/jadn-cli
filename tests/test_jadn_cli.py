@@ -323,26 +323,12 @@ def test_do_v_data_cbor():
 
 ############# TESTING COMMAND: data_c #############
 def test_do_data_c():
-    arg = "-b"
-    arg2 = "--bulk"
-    arg3 = "music_library.json"
+    arg = "music-database.jadn music_library.json --compact"
 
     cli =JadnCLI()
 
     cli.do_clear_log('')
     cli.do_data_c(arg)
-    cli.do_err_report_gen('')
-
-    assert cli.error_list == []
-
-    cli.do_clear_log('')
-    cli.do_data_c(arg2)
-    cli.do_err_report_gen('')
-
-    assert cli.error_list == []
-
-    cli.do_clear_log('')
-    cli.do_data_c(arg3)
     cli.do_err_report_gen('')
 
     assert cli.error_list == []
