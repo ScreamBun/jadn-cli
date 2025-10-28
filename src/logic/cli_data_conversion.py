@@ -2,6 +2,7 @@ import json
 from src.utils.consts import COMPACT_CONST, CONCISE_CONST, DATA_DIR_PATH, SCHEMAS_DIR_PATH, JSON_FILE_EXT
 from src.utils.file_utils import get_file
 from jadnutils.json.convert_compact import convert_to_compact
+from jadnutils.json.convert_concise import convert_to_concise
 
 class CliDataConversion():
     
@@ -37,7 +38,7 @@ class CliDataConversion():
                 converted_data = convert_to_compact(schema_data, data_data)
             
             elif self.convert_to == CONCISE_CONST:
-                pass #TODO
+                converted_data = convert_to_concise(schema_data, data_data)
                 
         except Exception as e:
             raise ValueError(f"Data Invalid - {e}")

@@ -322,8 +322,19 @@ def test_do_v_data_cbor():
     assert True # CBOR is invalid   
 
 ############# TESTING COMMAND: data_c #############
-def test_do_data_c():
+def test_do_data_c_compact():
     arg = "music-database.jadn music_library.json --compact"
+
+    cli =JadnCLI()
+
+    cli.do_clear_log('')
+    cli.do_data_c(arg)
+    cli.do_err_report_gen('')
+
+    assert cli.error_list == []
+
+def test_do_data_c_concise():
+    arg = "music-database.jadn music_library.json --concise"
 
     cli =JadnCLI()
 
