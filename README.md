@@ -90,11 +90,14 @@ Follow these steps to set up and run the JADN CLI from scratch:
 
 1. **Using Git Pull the Latest**
 
-From the terminal, locate your jadn-cli directory and enter the dirtory.  
+From the terminal, locate your jadn-cli directory and enter the directory.  
 Then at root, run this git command:
 
    ```sh
    cd jadn-cli
+   ```
+
+   ```sh
    git pull https://github.com/ScreamBun/jadn-cli.git
    ```
 
