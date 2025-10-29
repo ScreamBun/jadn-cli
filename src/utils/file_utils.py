@@ -53,7 +53,7 @@ def file_exists(dirname, filename):
     files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*"))]
     return filename in files
 
-def list_files(dir, is_jadn_only=True, is_json_only=False):
+def list_files(dir, is_jadn_only=True, is_json_only=False, join_list=None):
     """
     List all files (not directories or nested files) in the specified directory, displaying a file number for each.
     """
@@ -70,9 +70,16 @@ def list_files(dir, is_jadn_only=True, is_json_only=False):
         files = [f for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
         
     if files:
-        print(f"Files in '{dir}' directory:")
-        for idx, f in enumerate(files, 1):
-            print(f"  {idx} - {os.path.basename(f)}")
+        if join_list is not None:
+            files.extend(join_list)
+            if join_list != []:
+                for idx, f in enumerate(files, 1):
+                    print(f"  {idx} - {os.path.basename(f)}")
+            return files
+        else:
+            print(f"Files in '{dir}' directory:")
+            for idx, f in enumerate(files, 1):
+                print(f"  {idx} - {os.path.basename(f)}")
     else:
         print(f"No files found in the '{dir}' directory.")
 
@@ -100,6 +107,23 @@ def map_files(dir, is_jadn_only=True, is_json_only=False):
             file_dict[idx] = f
     else:
         print(f"No files found in the '{dir}' directory.")
+
+    return file_dict
+
+def map_schema_and_data_files(schema_dir, data_dir):
+    """
+    Map all schema and data files to their file numbers within ONE map.
+    """
+    schema_dir = os.path.join(os.getcwd(), schema_dir)
+    data_dir = os.path.join(os.getcwd(), data_dir)
+    file_dict = {}
+
+    schema_files = [f for f in glob.glob(os.path.join(schema_dir, "*")) if os.path.isfile(f)]
+    data_files = [f for f in glob.glob(os.path.join(data_dir, "*")) if os.path.isfile(f)]
+
+    all_files = schema_files + data_files
+    for idx, f in enumerate(all_files, 1):
+        file_dict[idx] = f
 
     return file_dict
 
@@ -151,27 +175,43 @@ def pick_an_option(opts, opts_title="Choose an option:", prompt="Enter an option
             return user_input
         print("Invalid option entered. Please try again or type 'exit' to cancel.")    
 
-def pick_a_file(dir, is_jadn_only=True, is_json_only=False, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
+def pick_a_file(dir, fromArray=None, is_jadn_only=True, is_json_only=False, prompt="Enter the file number or filename (or type 'exit' to cancel): ") -> str:
     """
     Prompt the user to pick a file from the specified directory.
     Returns the selected filename or None if cancelled.
     Only files at the dir level (no directories or nested files) are shown.
     """
-    dir = os.path.join(os.getcwd(), dir)
-    if not os.path.exists(dir):
-        print(f"The '{dir}' directory does not exist.")
-        return None
+    if fromArray is None:
+        dir = os.path.join(os.getcwd(), dir)
+        if not os.path.exists(dir):
+            print(f"The '{dir}' directory does not exist.")
+            return None
 
-    if is_jadn_only:
-        files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
-    elif is_json_only:
-        files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.json")) if os.path.isfile(f)]
+        if is_jadn_only:
+            files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.jadn")) if os.path.isfile(f)]
+        elif is_json_only:
+            files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*.json")) if os.path.isfile(f)]
+        else:
+            files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
+
+        if not files:
+            print(f"No files found in the '{dir}' directory.")
+            return None
     else:
-        files = [os.path.basename(f) for f in glob.glob(os.path.join(dir, "*")) if os.path.isfile(f)]
+        if fromArray == []:
+            print("The provided file list is empty.")
+            return None
+        
+        if is_jadn_only:
+            files = [os.path.join(dir, f) for f in fromArray if f.endswith('.jadn')]
+        elif is_json_only:
+            files = [os.path.join(dir, f) for f in fromArray if f.endswith('.json')]
+        else:
+            files = [os.path.join(dir, f) for f in fromArray]
 
-    if not files:
-        print(f"No files found in the '{dir}' directory.")
-        return None
+        if not files:
+            print(f"No files found in the provided list.")
+            return None
 
     while True:
         user_input = input(prompt).strip()

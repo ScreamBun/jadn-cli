@@ -344,6 +344,18 @@ def test_do_data_c_concise():
 
     assert cli.error_list == []
 
+############# TESTING COMMAND: view_file #############
+def test_do_view_file():
+    arg = "music-database.jadn"
+
+    cli = JadnCLI()
+
+    cli.do_clear_log('')
+    cli.do_view_file(arg)
+    cli.do_err_report_gen('')
+    
+    assert cli.error_list == []
+
 ############# TESTING COMMAND: clear_log #############
 def test_do_clear_log():
     arg = "invalid-music-database.jadn"

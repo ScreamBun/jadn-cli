@@ -81,3 +81,30 @@ Follow these steps to set up and run the JADN CLI from scratch:
 
 - Replace `my_schema.jadn` with the actual filename of your schema in the `schemas` directory.
 - To disable helper prompts and run the cli inline only, go to the config.toml file and change use_prompts to false.
+
+## Update an Existing CLI
+
+If you already have the CLI cloned and you just want to pull down the latest and greatest, here is how.
+
+Follow these steps to set up and run the JADN CLI from scratch:
+
+1. **Using Git Pull the Latest**
+
+From the terminal, locate your jadn-cli directory and enter the directory.  
+Then at root, run this git command:
+
+   ```sh
+   cd jadn-cli
+   ```
+
+   ```sh
+   git pull https://github.com/ScreamBun/jadn-cli.git
+   ```
+
+<!-- markdownlint-disable-next-line MD029 -->
+2. **Run the CLI**
+Now just fire it up:
+
+   ```sh
+   python jadn_cli.py
+   ```
