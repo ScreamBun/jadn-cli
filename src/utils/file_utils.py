@@ -109,24 +109,7 @@ def map_files(dir, is_jadn_only=True, is_json_only=False):
         print(f"No files found in the '{dir}' directory.")
 
     return file_dict
-
-def map_schema_and_data_files(schema_dir, data_dir):
-    """
-    Map all schema and data files to their file numbers within ONE map.
-    """
-    schema_dir = os.path.join(os.getcwd(), schema_dir)
-    data_dir = os.path.join(os.getcwd(), data_dir)
-    file_dict = {}
-
-    schema_files = [f for f in glob.glob(os.path.join(schema_dir, "*")) if os.path.isfile(f)]
-    data_files = [f for f in glob.glob(os.path.join(data_dir, "*")) if os.path.isfile(f)]
-
-    all_files = schema_files + data_files
-    for idx, f in enumerate(all_files, 1):
-        file_dict[idx] = f
-
-    return file_dict
-
+    
 # def list_files(dir, file_ext=None):
     # """
     # List all files (not directories or nested files) in the specified directory, displaying a file number for each.

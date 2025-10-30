@@ -8,7 +8,7 @@ import json
 
 from src.logic.cli_schema_reverse_translate import SchemaReverseTranslate
 from src.utils.config import get_config_value
-from src.utils.file_utils import map_files, map_schema_and_data_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
+from src.utils.file_utils import map_files, list_files, file_exists, pick_a_file, pick_an_option, update_file_extension, write_to_output
 from src.utils.time_utils import get_err_report_filename, get_now
 from src.logic.cli_data_validation import CliDataValidation, CliSchemaValidation
 from src.logic.cli_data_conversion import CliDataConversion
@@ -38,44 +38,35 @@ class JadnCLI(cmd.Cmd):
         print('Thank you for using JADN. ')
         return True      
         
-    def do_schema_v(self, arg = None): 
-        'Validate a JADN Schema. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_v <schema_filename>'        
-        
-        j_schema = None
-        if not arg:
+    def do_schema_v(self, args): 
+        'Validate a JADN Schema. \n\nFirst, load your schema into the schemas directory, \nnext run the command: \n\npython jadn_cli.py schema_v <schema_filename> [--output]'        
+        if isinstance(args, str):
+            args = args.strip().split()
+
+        j_schema = args[0] if len(args) > 0 else None
+        opts = args[1:] if len(args) > 1 else []
+        output = True if '--output' in opts else False
+
+        if not j_schema:
             list_files(SCHEMAS_DIR_PATH)
-            j_schema = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename to validate (or type 'exit' to cancel): ")
-        
-        elif arg.isdigit():        
+            j_schema = pick_a_file(dir = SCHEMAS_DIR_PATH, prompt = "Enter a number or schema filename to validate (or type 'exit' to cancel): ")
+        elif j_schema.isdigit():        
             file_map = map_files(SCHEMAS_DIR_PATH)
             try: 
-                j_schema = file_map[int(arg)].split('/')[-1]
+                j_schema = file_map[int(j_schema)].split('/')[-1]
                 
             except:
                 print(f"Schema not found")
                 self.do_schema_v()
                 return
 
-        elif isinstance(arg, str):        
-            does_exist = file_exists(SCHEMAS_DIR_PATH, arg)
-            
+        if j_schema is not None:      
+            does_exist = file_exists(SCHEMAS_DIR_PATH, j_schema)
+
             if not does_exist:
-                print(f"Schema {arg} not found.")
+                print(f"Schema {j_schema} not found.")
                 self.do_schema_v()
                 return
-
-            j_schema = arg
-
-        elif isinstance(arg, list) and len(arg) >= 1: 
-            does_exist = file_exists(SCHEMAS_DIR_PATH, arg[0])
-            
-            if not does_exist:
-                print(f"Schema {arg} not found.")
-                self.do_schema_v()
-                return
-
-            j_schema = arg[0]
-            
         else:
             print("Invalid argument. Please provide a schema filename or use the list command.")
             return
@@ -86,6 +77,9 @@ class JadnCLI(cmd.Cmd):
             
             if is_valid:
                 print(f'Schema {j_schema} is valid.')
+                if output:
+                    os.system('cat ' + os.path.join(OUTPUT_DIR_PATH, j_schema))
+                    print("\n")
             else:
                 print(f'Schema {j_schema} is invalid.')
             
@@ -95,15 +89,16 @@ class JadnCLI(cmd.Cmd):
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
             
     def do_data_c(self, args):
-        'Convert JSON Verbose Data into JSON Compact or Concise Data.\n\npython jadn_cli.py data_c <schema_filename> <data_filename> [option]\n\nOptions:\n--compact: Convert to JSON Compact\n--concise: Convert to JSON Concise'
+        'Convert JSON Verbose Data into JSON Compact or Concise Data.\n\npython jadn_cli.py data_c <schema_filename> <data_filename> [option]\n\nOptions:\n--compact: Convert to JSON Compact\n--concise: Convert to JSON Concise\n--output: Output resulting conversion to CLI.'
         if isinstance(args, str):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
-        opt = args[2] if len(args) > 2 else None
-        compact = '--compact' == opt or '1' == opt
-        concise = '--concise' == opt or '2' == opt
+        opts = args[2:] if len(args) > 2 else None
+        compact = '--compact' in opts or '1' in opts
+        concise = '--concise' in opts or '2' in opts
+        output = True if '--output' in opts else False
 
         data_map = {}
 
@@ -151,19 +146,24 @@ class JadnCLI(cmd.Cmd):
             new_filename = update_file_extension(data_filename, 'json')
             write_to_output(new_filename, new_data)
             print(f' - Data {data_filename} has been converted to {compact_or_concise} format.')
+            if output:
+               os.system('cat ' + os.path.join(OUTPUT_DIR_PATH, new_filename))
+               print("\n")
         except Exception as e:
             print(f' - An error occurred while converting the data: {e}')
             logging.error(f"An error occurred: {str(e)}", exc_info=True)
             self.error_list.append({'timestamp': get_now(), 'error_type': type(e).__name__, 'err message': str(e)})
 
     def do_data_v(self, args):
-        'Validate data against a JADN schema. \n\nFirst, load your schema into the schemas directory, \nnext load your data file to the data directory, and \nthen, run the command: \n\npython jadn_cli.py data_v <schema_filename> <data_filename>'
+        'Validate data against a JADN schema. \n\nFirst, load your schema into the schemas directory, \nnext load your data file to the data directory, and \nthen, run the command: \n\npython jadn_cli.py data_v <schema_filename> <data_filename> [--output]'
         
         if isinstance(args, str):
             args = args.strip().split()
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
+        opts = args[2:] if len(args) > 2 else []
+        output = True if '--output' in opts else False
 
         schema_map = {}
         data_map = {}
@@ -210,6 +210,9 @@ class JadnCLI(cmd.Cmd):
             
             if is_valid:
                 print(f' - Data {data_filename} is valid.')
+                if output:
+                    os.system('cat ' + os.path.join(OUTPUT_DIR_PATH, data_filename))
+                    print("\n")
             else:
                 print(f' - Data {data_filename} is invalid.')
             
@@ -340,6 +343,8 @@ class JadnCLI(cmd.Cmd):
             args = args.strip().split()
 
         filename = args[0] if len(args) > 0 else None
+        opts = args[1:] if len(args) > 1 else []
+        output = True if '--output' in opts else False
         schemas_map = {}
         
         use_prompts = get_config_value("use_prompts", True)
@@ -377,6 +382,9 @@ class JadnCLI(cmd.Cmd):
                 print(f'  - {filename} has been reverse translated into a JADN Schema.')
                 new_filename = update_file_extension(filename, JADN_SCHEMA_FILE_EXT)
                 write_to_output(new_filename, file_translated)
+                if output:
+                    os.system('cat ' + os.path.join(OUTPUT_DIR_PATH, new_filename))
+                    print("\n")
             else: 
                 print(f'  - {filename} could not be reverse translated into a JADN Schema.')
             
