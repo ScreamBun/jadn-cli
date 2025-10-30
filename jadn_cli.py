@@ -564,42 +564,49 @@ class JadnCLI(cmd.Cmd):
         print("Cleared error reports.")
 
     def do_view_file(self, args):
-        'View the contents of a schema or data file. Default method is \"cat filename\"\n\npython jadn_cli.py view_file <filename> [option]\n\nOptions:\n--code: open file in VSCode\n--vim: open file in Vim\n--head: display first 10 lines\n--tail: display last 10 lines'
+        'View the contents of a schema or data file. Default method is \"cat filename\"\n\npython jadn_cli.py view_file <directory> <filename> [option]\n\nOptions:\n--code: open file in VSCode\n--vim: open file in Vim\n--head: display first 10 lines\n--tail: display last 10 lines'
         if isinstance(args, str):
             args = args.strip().split()
 
-        filename = args[0] if len(args) > 0 else None
+        directory = args[0] if len(args) > 0 else None
+        filename = args[1] if len(args) > 1 else None
         prompt_option = filename is None
-        option = args[1] if len(args) > 1 else None
+        option = args[2] if len(args) > 2 else None
         files_map = {}
 
         use_prompts = get_config_value("use_prompts", True)
         if not use_prompts: 
             if not filename:
-                print("Error: Commands missing. Use 'python jadn_cli.py view_file <filename> [option]'")
+                print("Error: Commands missing. Use 'python jadn_cli.py view_file <directory> <filename> [option]'")
                 sys.exit(1)
 
         try: 
+            if not directory:
+                directory = pick_an_option([SCHEMAS_DIR_PATH, DATA_DIR_PATH, OUTPUT_DIR_PATH], opts_title="Directories:", prompt="Enter a directory to view files from: ")
+                if directory is None:
+                    return
+            elif directory.isdigit():
+                try:
+                    directory = [SCHEMAS_DIR_PATH, DATA_DIR_PATH, OUTPUT_DIR_PATH][int(directory) - 1]
+                except IndexError:
+                    print(f"Invalid directory number: {directory}")
+                    self.do_view_file(args = [])
+                    return
             if not filename:
-                list1 = list_files(SCHEMAS_DIR_PATH, is_jadn_only=False, join_list=[])
-                list2 = list_files(DATA_DIR_PATH, is_jadn_only=False, join_list=list1)
-                filename = pick_a_file('.', fromArray=list2, is_jadn_only=False, is_json_only=False, prompt="Enter a number or filename to view (or type 'exit' to cancel): ")
+                list_files(directory, is_jadn_only=False)
+                filename = pick_a_file(directory, is_jadn_only=False, is_json_only=False, prompt="Enter a number or filename to view (or type 'exit' to cancel): ")
+                filename = os.path.join(directory, filename)
             elif filename.isdigit():
-                files_map = map_schema_and_data_files(SCHEMAS_DIR_PATH, DATA_DIR_PATH)
+                files_map = map_files(directory, is_jadn_only=False, is_json_only=False)
                 try:
                     filename = files_map[int(filename)]
+                    filename = os.path.join(directory, filename)
                 except:
                     print(f"File {filename} not found.")
                     self.do_view_file(args = [])
                     return
             else:
-                if file_exists(SCHEMAS_DIR_PATH, filename):
-                    filename = os.path.join(SCHEMAS_DIR_PATH, filename)
-                elif file_exists(DATA_DIR_PATH, filename):
-                    filename = os.path.join(DATA_DIR_PATH, filename)
-                else:
-                    print(f"File {filename} not found in schemas or data directories.")
-                    return
+                filename = os.path.join(directory, filename)
             
             if not filename:
                 return
