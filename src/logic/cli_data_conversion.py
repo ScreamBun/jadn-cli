@@ -32,13 +32,15 @@ class CliDataConversion():
             schema_data = json.loads(schema_data_str) # Ensure it's a valid JSON string
 
             data_data_str = data_file_data[self.data_filename]
-            data_data = json.loads(data_data_str) # Ensure it's a valid JSON string
+            data_data = json.loads(data_data_str, ) # Ensure it's a valid JSON string
              
             if self.convert_to == COMPACT_CONST:
                 converted_data = convert_to_compact(schema_data, data_data)
             
             elif self.convert_to == CONCISE_CONST:
                 converted_data = convert_to_concise(schema_data, data_data)
+
+            converted_data = json.dumps(converted_data, indent=4) if converted_data else None
                 
         except Exception as e:
             raise ValueError(f"Data Invalid - {e}")

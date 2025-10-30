@@ -102,8 +102,8 @@ class JadnCLI(cmd.Cmd):
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
         opt = args[2] if len(args) > 2 else None
-        compact = '--compact' == opt
-        concise = '--concise' == opt
+        compact = '--compact' == opt or '1' == opt
+        concise = '--concise' == opt or '2' == opt
 
         data_map = {}
 
@@ -128,7 +128,7 @@ class JadnCLI(cmd.Cmd):
         if not data_filename:
             list_files(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True)
             data_filename = pick_a_file(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True, prompt="Enter a number or data filename (or type 'exit' to cancel): ")
-        elif data_filename.isdigit() and not bulk:
+        elif data_filename.isdigit():
             data_map = map_files(DATA_DIR_PATH, is_jadn_only=False, is_json_only=True)
             try:
                 data_filename = data_map[int(data_filename)].split('/')[-1]
