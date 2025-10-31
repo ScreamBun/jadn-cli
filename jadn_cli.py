@@ -95,7 +95,7 @@ class JadnCLI(cmd.Cmd):
 
         schema_filename = args[0] if len(args) > 0 else None
         data_filename = args[1] if len(args) > 1 else None
-        opts = args[2:] if len(args) > 2 else None
+        opts = args[2:] if len(args) > 2 else []
         compact = '--compact' in opts or '1' in opts
         concise = '--concise' in opts or '2' in opts
         output = True if '--output' in opts else False
