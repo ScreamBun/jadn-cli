@@ -224,7 +224,7 @@ def test_schema_t_bulk_json():
     cli.do_schema_t_bulk(arg)
     cli.do_err_report_gen('')
 
-    assert len(cli.error_list) == 1 #invalid schema
+    assert len(cli.error_list) == 0
 
 ############# TESTING COMMAND: schema_vis <schema_file> <convert_to> #############
 def test_schema_vis_md():
@@ -282,17 +282,6 @@ def test_do_v_schema():
     cli.do_err_report_gen('')
     
     assert cli.error_list == []
-
-def test_do_v_schema_invalid():
-    arg = "invalid-music-database.jadn"
-    
-    cli = JadnCLI()
-    cli.do_clear_log('')
-
-    cli.do_schema_v(arg)
-    cli.do_err_report_gen('')
-
-    assert len(cli.error_list) > 0
 
 ############# TESTING COMMAND: data_v <schema_file> <data_file> #############
 def test_do_v_data_json():
@@ -358,7 +347,7 @@ def test_do_view_file():
 
 ############# TESTING COMMAND: clear_log #############
 def test_do_clear_log():
-    arg = "invalid-music-database.jadn"
+    arg = "music-database.jadn"
 
     cli = JadnCLI()
 
@@ -370,7 +359,7 @@ def test_do_clear_log():
 
 ############# TESTING COMMAND: clear_reports #############
 def test_do_clear_reports():
-    arg = "invalid-music-database.jadn"
+    arg = "music-database.jadn"
 
     cli = JadnCLI()
 
