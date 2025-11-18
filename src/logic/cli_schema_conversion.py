@@ -27,6 +27,9 @@ class CliSchemaConversion():
             schema_data_str = schema_file_data[self.schema_filename]
             schema_data = json.loads(schema_data_str) # Ensure it's a valid JSON string
             
+            # Validate and fix schema structure before conversion
+            self._validate_and_fix_schema(schema_data)
+            
             if self.convert_to == GV_FILE_EXT:
                 gv_style = jadn.convert.diagram_style()
                 gv_style['format'] = 'graphviz'
@@ -68,3 +71,31 @@ class CliSchemaConversion():
             raise ValueError(f"Schema Invalid - {e}")
         
         return converted_schema
+    
+    def _validate_and_fix_schema(self, schema_data):
+        """
+        Validate and fix common schema structure issues that can cause conversion errors.
+        """
+        if not isinstance(schema_data, dict) or 'types' not in schema_data:
+            raise ValueError("Schema must be a dictionary with a 'types' key")
+        
+        types = schema_data.get('types', [])
+        if not isinstance(types, list):
+            raise ValueError("Schema 'types' must be a list")
+        
+        # Fix type definitions that are missing the Fields array (index 4)
+        for i, type_def in enumerate(types):
+            if not isinstance(type_def, list):
+                raise ValueError(f"Type definition {i} must be a list")
+            
+            # Each type definition should have at least 5 elements:
+            # [name, base_type, options, description, fields]
+            if len(type_def) < 5:
+                # Add missing elements with appropriate defaults
+                while len(type_def) < 4:
+                    type_def.append('')  # Add empty description if missing
+                type_def.append([])  # Add empty fields array
+                
+                print(f"Warning: Fixed malformed type definition '{type_def[0] if len(type_def) > 0 else 'Unknown'}' - added missing fields array")
+        
+        return schema_data

@@ -246,7 +246,7 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
         
             if schema_filename is None:
                 return
@@ -462,7 +462,7 @@ class JadnCLI(cmd.Cmd):
         
         if not schema_filename:
             list_files(SCHEMAS_DIR_PATH)
-            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, "Enter a number or schema filename (or type 'exit' to cancel): ")        
+            schema_filename = pick_a_file(SCHEMAS_DIR_PATH, prompt="Enter a number or schema filename (or type 'exit' to cancel): ")        
         
             if schema_filename is None:
                 return
