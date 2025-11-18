@@ -346,7 +346,7 @@ def test_do_data_c_concise():
 
 ############# TESTING COMMAND: view_file #############
 def test_do_view_file():
-    arg = "music-database.jadn"
+    arg = ["./schemas", "music-database.jadn"]
 
     cli = JadnCLI()
 
