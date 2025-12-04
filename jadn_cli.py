@@ -663,7 +663,7 @@ class JadnCLI(cmd.Cmd):
         table = texttable.Texttable()
         # table.header(["", ""])
         table.add_row(["JADN CLI", "A command-line interface for working with JADN schemas and data."])
-        table.add_row(["Version", "1.0.0"]) 
+        table.add_row(["Version", "1.1.0"]) 
         table.add_row(["JADN 2.0 OASIS Spec", "https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.html"])
         table.add_row(["JADN PyPi", "https://pypi.org/project/jadn/"])
         print(table.draw())        
